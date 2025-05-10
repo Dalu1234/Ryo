@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG System Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #answer {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9e9eb;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap; /* Preserve whitespace and wrap text */
+            word-wrap: break-word; /* Break long words */
+        }
+        #answer p {
+            margin: 0; /* Remove default paragraph margin */
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ask the Allocation Document</h1>
+
+        <label for="question">Enter your question:</label>
+        <input type="text" id="question" name="question" placeholder="Type your question here...">
+
+        <button id="submitBtn">Get Answer</button>
+
+        <div id="answer">
+            <p>Your answer will appear here...</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const questionInput = document.getElementById('question');
+            const answerDiv = document.getElementById('answer');
+            const question = questionInput.value.trim();
+
+            if (question === "") {
+                answerDiv.innerHTML = "<p style='color: red;'>Please enter a question.</p>";
+                return;
+            }
+
+            // Display a loading message
+            answerDiv.innerHTML = "<p>Loading answer...</p>";
+
+            // --- Backend Integration Point ---
+            // This is now configured to call your Flask backend API
+            // Make sure your Flask server is running on http://127.0.0.1:5000
+            const backendUrl = " https://6d1f-69-143-211-57.ngrok-free.app/api/ask";
+            //'http://127.0.0.1:5000/api/ask';
+
+            try {
+                const response = await fetch(backendUrl, {
+                    method: 'POST', // We are sending data (the question)
+                    headers: {
+                        'Content-Type': 'application/json', // Telling the server we are sending JSON
+                    },
+                    // Sending the question as a JSON string with key 'question'
+                    body: JSON.stringify({ question: question }),
+                });
+
+                // Check if the HTTP response status is OK (200-299)
+                if (!response.ok) {
+                    // Attempt to read error details from the response body
+                    const errorData = await response.json();
+                    throw new Error(`HTTP error! status: ${response.status}, Details: ${errorData.error || response.statusText}`);
+                }
+
+                // Parse the JSON response from the server
+                const data = await response.json();
+                // Extract the 'answer' field from the JSON data
+                const answer = data.answer;
+
+                // Display the answer in the answer div
+                answerDiv.innerHTML = `<p>${answer}</p>`;
+
+            } catch (error) {
+                // Log the error to the console and display an error message to the user
+                console.error('Error fetching answer:', error);
+                answerDiv.innerHTML = `<p style='color: red;'>Error getting answer: ${error.message}. Make sure your backend server is running.</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
