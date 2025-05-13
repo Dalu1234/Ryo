@@ -1,6 +1,7 @@
 flask
 flask-cors
 langchain
+langchain-community # Added this line
 langchain-groq
 langchain-huggingface # For HuggingFaceEmbeddings
 qdrant-client
