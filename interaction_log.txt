@@ -1,0 +1,130 @@
+2025-05-10 02:41:12,199 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-05-10 02:41:12,199 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-mpnet-base-v2
+2025-05-10 02:44:56,642 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-05-10 02:44:56,642 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-mpnet-base-v2
+2025-05-10 02:44:57,648 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-05-10 02:44:57,648 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections/allocations_docs/exists "HTTP/1.1 200 OK"
+2025-05-10 02:44:57,648 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections/allocations_docs "HTTP/1.1 200 OK"
+2025-05-10 02:44:58,607 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 02:44:59,327 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 02:44:59,336 - root - INFO - Successfully imported RAG graph from main.py
+2025-05-10 02:44:59,349 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.10.185:5000
+2025-05-10 02:44:59,351 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-10 02:47:07,244 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:47:07] "GET / HTTP/1.1" 200 -
+2025-05-10 02:47:07,620 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:47:07] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-05-10 02:47:17,106 - root - INFO - Received question: Who is the student activity fee collected from?
+2025-05-10 02:47:17,168 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 02:47:17,987 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 02:47:18,002 - root - INFO - Generated answer: The Student Activity Fee is collected from all undergraduate students at the University of Pittsburgh not solely enrolled in the College of General Studies (CGS).
+2025-05-10 02:47:18,002 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:47:18] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 02:47:54,777 - root - INFO - Received question: Are capital improvements approved?
+2025-05-10 02:47:54,818 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 02:47:55,953 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 02:47:55,968 - root - INFO - Generated answer: Capital improvements to any facilities shall not be approved.
+2025-05-10 02:47:55,968 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:47:55] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 02:50:38,359 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:50:38] "GET / HTTP/1.1" 200 -
+2025-05-10 02:50:43,456 - root - INFO - Received question: Who is the student activity fee collected from?
+2025-05-10 02:50:43,507 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 02:50:44,218 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 02:50:44,225 - root - INFO - Generated answer: The student activity fee is collected from all undergraduate students at the University of Pittsburgh, except those solely enrolled in the College of General Studies (CGS).
+2025-05-10 02:50:44,225 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:50:44] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 02:51:11,520 - root - INFO - Received question: Hello
+2025-05-10 02:51:11,572 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 02:51:12,232 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 02:51:12,232 - root - INFO - Generated answer: I don't know. The context provided does not mention anything about a Public Meeting or the Allocations Chair, so I'm unable to answer the question.
+2025-05-10 02:51:12,232 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:51:12] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 02:52:03,655 - root - INFO - Received question: What programs and services does student affairs provide?
+2025-05-10 02:52:03,733 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 02:52:04,252 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 02:52:04,252 - root - INFO - Generated answer: Student Affairs provides programs and services for undergraduate students with student activity fee revenue, including the Pitt Program Council (PPC), WPTS-FM Radio, and other student organizations.
+2025-05-10 02:52:04,252 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:52:04] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 02:55:53,272 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:55:53] "GET / HTTP/1.1" 200 -
+2025-05-10 02:56:31,882 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:56:31] "GET / HTTP/1.1" 200 -
+2025-05-10 02:56:49,648 - root - INFO - Received question: Tell me a fun fact
+2025-05-10 02:56:49,728 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 02:56:50,744 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 02:56:50,768 - root - INFO - Generated answer: I don't know.
+2025-05-10 02:56:50,768 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:56:50] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 02:57:20,874 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 02:57:20] "GET / HTTP/1.1" 200 -
+2025-05-10 03:23:36,552 - root - INFO - Received question: What is the Student Activity Fee used for?
+2025-05-10 03:23:36,594 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:23:37,247 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:23:37,263 - root - INFO - Generated answer: The Student Activity Fee is used to fund programs and services for undergraduate students, including the Pitt Program Council, WPTS-FM Radio, the Student Office of Sustainability, The Pitt News, the Student Organization Resource Center, the Office of PittServes, the Office of Involvement and Student Unions, and the Student Government Board.
+2025-05-10 03:23:37,263 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:23:37] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:23:51,174 - root - INFO - Received question: Who is eligible to receive SGB funding?
+2025-05-10 03:23:51,223 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:23:51,773 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:23:51,786 - root - INFO - Generated answer: To be eligible for SGB funding, student organizations must be currently registered with the SORC with up-to-date officers, meet the requirements of being comprised of at least 75% undergraduate Pitt students not solely enrolled in CGS, not be a recognized social fraternity or sorority, and abide by all SORC policies.
+2025-05-10 03:23:51,786 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:23:51] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:24:23,168 - root - INFO - Received question: What kinds of organizations are not eligible for funding?
+2025-05-10 03:24:23,234 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:24:23,868 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:24:23,881 - root - INFO - Generated answer: Based on the provided context, the following organizations are not eligible for funding:
+
+* Those whose primary purpose is to serve as a fundraiser for organizational benefit or charity
+* Student organizations collaborating with other student organizations that fail to justify being held off-campus
+* Those whose expenses are primarily social, recruiting, or promotional
+* Those whose expenses are related to activities that are not in compliance with the highest standard of University health or safety guidance
+* Those whose expenses are for food for competitions, conferences, and off-campus events
+* Those whose expenses are for individualized membership chapter dues
+* Those whose expenses are judged to be the responsibility of individual members of student organizations
+* Those whose expenses are for capital improvements to any facilities
+* Those whose expenses are intended to fulfill academic department requirements
+* Those whose expenses are judged to primarily be the responsibility of a school, department, or administrative unit
+* Those whose expenses are for refundable deposits
+* Those whose expenses are for donations, giveaways that are primarily promotional or recreational, or personal gifts of any kind
+2025-05-10 03:24:23,881 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:24:23] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:24:39,147 - root - INFO - Received question: What is the difference between a Supplemental Request and a Budget?
+2025-05-10 03:24:39,212 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:24:39,871 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:24:39,886 - root - INFO - Generated answer: A Supplemental Request is a request for as-needed funding, typically submitted for specific projects, events, or travel, whereas a Budget is a long-term planning request submitted optionally up to once per semester.
+2025-05-10 03:24:39,886 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:24:39] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:24:58,444 - root - INFO - Received question: What documentation do we need to provide for costs?
+2025-05-10 03:24:58,497 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:24:58,959 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:24:58,962 - root - INFO - Generated answer: According to the provided context, documentation for costs may include any proof of price from the source, such as an official quote, email confirmation, printout, or picture of a price from a vendor.
+2025-05-10 03:24:58,962 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:24:58] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:25:16,839 - root - INFO - Received question: Who approves funding under $2,000 vs over $2,000?
+2025-05-10 03:25:16,913 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:25:17,468 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:25:17,479 - root - INFO - Generated answer: According to the context, the Executive Board approves funding over $2,000, while the Allocations Committee approves funding under $2,000.
+2025-05-10 03:25:17,479 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:25:17] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:26:18,574 - root - INFO - Received question: Can we change the items we buy after a request is approved?
+2025-05-10 03:26:18,621 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:26:19,094 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:26:19,098 - root - INFO - Generated answer: After reviewing the context, I found that organizations can change items they buy after a request is approved, but only under certain circumstances. They can make Automatic Modifications, which require certification by the Allocations Chair, or make changes to their documentation, remove expenses, or make a Substantial Modification, which requires the same approval process as the original request.
+2025-05-10 03:26:19,100 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:26:19] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:26:55,804 - root - INFO - Received question: What if we don’t spend all the money we were allocated?
+2025-05-10 03:26:55,878 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:26:56,362 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:26:56,362 - root - INFO - Generated answer: If you don't spend all the allocated funds, you can return the unspent funds to the Allocations Committee. The Allocations Chair will create an online Funding Release form, and with the approval of the SORC, the funds will be released.
+2025-05-10 03:26:56,362 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:26:56] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:27:38,325 - root - INFO - Received question: What’s considered an “Automatic Modification” versus a “Substantial Modification”?
+2025-05-10 03:27:38,384 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:27:39,141 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:27:39,157 - root - INFO - Generated answer: An "Automatic Modification" is a modification that meets specific criteria, such as not changing the nature of the original request, not violating established policies, and not requiring a final decision from the Executive Board. These modifications only require certification by the Allocations Chair. A "Substantial Modification", on the other hand, requires the same approval process as the original request, including a final decision by either the Allocations Committee or the Executive Board.
+2025-05-10 03:27:39,157 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:27:39] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:28:22,700 - root - INFO - Received question: What happens if our representative can’t attend the meeting?
+2025-05-10 03:28:22,765 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:28:23,243 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:28:23,248 - root - INFO - Generated answer: If a student organization representative can't attend the meeting, they may notify the Allocations Chair to have their request postponed to the next Public Meeting or have a statement about their request read on their behalf without having their request postponed.
+2025-05-10 03:28:23,248 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:28:23] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:28:43,744 - root - INFO - Received question: Where can we see past funding decisions?
+2025-05-10 03:28:43,800 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/allocations_docs/points/query "HTTP/1.1 200 OK"
+2025-05-10 03:28:47,075 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-10 03:28:47,080 - root - INFO - Generated answer: According to the context, past funding decisions can be seen in the "Fall Budgets" and "Spring Budgets" submitted in October and March, respectively. These budgets include the Executive Board's final decision, justifications, and any approved modifications or funding releases.
+2025-05-10 03:28:47,080 - werkzeug - INFO - 127.0.0.1 - - [10/May/2025 03:28:47] "POST /api/ask HTTP/1.1" 200 -
+2025-05-10 03:31:53,767 - INFO - Successfully imported RAG graph from main.py
+2025-05-10 03:32:58,136 - INFO - Received question: "Who is the student activity fee collected from?"
+2025-05-10 03:32:58,813 - INFO - Generated answer: "The student activity fee is collected from all undergraduate students at the University of Pittsburgh not solely enrolled in the College of General Studies (CGS)." for question: "Who is the student activity fee collected from?"
+2025-05-10 03:34:09,326 - INFO - Received question: "Who is the student activity fee collected from?"
+2025-05-10 03:34:10,111 - INFO - Generated answer: "The Student Activity Fee is collected from all undergraduate students at the University of Pittsburgh, except those solely enrolled in the College of General Studies (CGS)." for question: "Who is the student activity fee collected from?"
+2025-05-10 03:34:32,458 - INFO - Received question: "Who is the student activity fee collected from?"
+2025-05-10 03:34:33,175 - INFO - Generated answer: "The student activity fee is collected from all undergraduate students at the University of Pittsburgh, except those solely enrolled in the College of General Studies (CGS)." for question: "Who is the student activity fee collected from?"
+2025-05-10 03:36:04,762 - INFO - Received question: "Who approves fundinf"
+2025-05-10 03:36:05,314 - INFO - Generated answer: "The Allocations Committee approves funding for approved purposes according to established policies and procedures. The Executive Board has the authority to make the final decision on all requests that requested or were recommended to be approved for more than or equal to $2,000." for question: "Who approves fundinf"
+2025-05-10 10:16:51,626 - INFO - Received question: "if my off campus event has 77 pitt students and 123 total people coming, will i get funded?"
+2025-05-10 10:16:52,639 - INFO - Generated answer: "Based on the provided context, it seems that the event you're planning is an off-campus event with 77 Pitt students and 123 total people attending. Since the event is off-campus and has an admission fee restricted to club members who pay dues, it will not be approved for funding according to section 5 of the context." for question: "if my off campus event has 77 pitt students and 123 total people coming, will i get funded?"

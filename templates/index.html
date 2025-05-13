@@ -3,139 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAG System Interface</title>
+    <title>R.A.G. Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: "Inter", sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'VT323', monospace;
+            background-color: #0D0208;
+            color: #00FF41;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            font-size: 18px;
         }
         .container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
+            background-color: #000000;
+            padding: 25px 35px;
+            border: 2px solid #00FF41;
+            box-shadow: 0 0 15px #00FF41, inset 0 0 5px rgba(0, 255, 65, 0.3);
+            max-width: 700px;
             width: 100%;
+            text-align: left;
         }
         h1 {
-            color: #333;
-            margin-bottom: 20px;
+            color: #00FF41;
+            font-size: 2.5em;
             text-align: center;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
+            margin-bottom: 10px;
+            color: #00FF41;
         }
         input[type="text"] {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box; /* Include padding and border in element's total width and height */
+            padding: 10px;
+            margin-bottom: 25px;
+            border: 1px solid #00FF41;
+            background-color: #111;
+            color: #00FF41;
+            font-family: 'VT323', monospace;
+            font-size: 1.1em;
+            box-sizing: border-box;
         }
+        input[type="text"]::placeholder { color: #008F20; }
+        input[type="text"]:focus { outline: none; box-shadow: 0 0 8px #00FF41; }
         button {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #00FF41;
+            color: #000000;
             padding: 12px 20px;
             border: none;
-            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+            font-family: 'VT323', monospace;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            transition: background-color 0.2s ease, color 0.2s ease;
             width: 100%;
+            display: block;
+            letter-spacing: 1px;
+            margin-bottom: 10px; /* Added margin for spacing if multiple buttons */
         }
-        button:hover {
-            background-color: #45a049;
-        }
+        button:hover { background-color: #00AA2A; color: #111111; }
+        button:active { background-color: #008F20; transform: translateY(1px); }
+
         #answer {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9e9eb;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            white-space: pre-wrap; /* Preserve whitespace and wrap text */
-            word-wrap: break-word; /* Break long words */
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #080808;
+            border: 1px dashed #00FF41;
+            min-height: 100px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.6;
         }
-        #answer p {
-            margin: 0; /* Remove default paragraph margin */
-            color: #333;
+        #answer p { margin: 0 0 10px 0; color: #00FF41; }
+        #answer p:last-child { margin-bottom: 0; }
+
+        .feedback-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #00330F; /* Separator line */
+        }
+        .feedback-buttons button {
+            width: auto; /* Allow buttons to size to content */
+            padding: 8px 15px;
+            font-size: 1em;
+            margin-right: 10px;
+            background-color: #222;
+            color: #00FF41;
+            border: 1px solid #00FF41;
+        }
+        .feedback-buttons button:hover {
+            background-color: #00FF41;
+            color: #000;
+        }
+        .feedback-buttons button.selected {
+            background-color: #00FF41;
+            color: #000;
+            cursor: not-allowed;
+        }
+        .feedback-message {
+            font-size: 0.9em;
+            color: #00AA2A; /* Softer green for feedback confirmation */
+            margin-top: 10px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #008F20;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Ask the Allocation Document</h1>
+        <h1>R.A.G. Terminal</h1>
 
-        <label for="question">Enter your question:</label>
-        <input type="text" id="question" name="question" placeholder="Type your question here...">
+        <label for="question">> Enter Your Query:</label>
+        <input type="text" id="question" name="question" placeholder="e.g., What are the allocation guidelines for...">
 
-        <button id="submitBtn">Get Answer</button>
+        <button id="submitBtn">Execute Query</button>
 
         <div id="answer">
-            <p>Your answer will appear here...</p>
+            <p>> System Response Will Appear Here...</p>
         </div>
+        
+        <div id="feedbackSection" class="feedback-section" style="display: none;">
+            <p>> What is your assesment of the provided answer?</p>
+            <div class="feedback-buttons">
+                <button id="correctBtn">Correct </button>
+                <button id="incorrectBtn">Incorrect </button>
+            </div>
+            <p id="feedbackMessage" class="feedback-message"></p>
+        </div>
+    </div>
+    <div class="footer">
+        <p>&copy; 2025 Ryo Corp. - Document Analysis Module v1.0</p>
     </div>
 
     <script>
-        document.getElementById('submitBtn').addEventListener('click', async () => {
-            const questionInput = document.getElementById('question');
-            const answerDiv = document.getElementById('answer');
-            const question = questionInput.value.trim();
+        // Store current question and answer globally for feedback
+        let currentQuestion = "";
+        let currentAnswer = "";
 
-            if (question === "") {
-                answerDiv.innerHTML = "<p style='color: red;'>Please enter a question.</p>";
+        const questionInput = document.getElementById('question');
+        const answerDiv = document.getElementById('answer');
+        const feedbackSection = document.getElementById('feedbackSection');
+        const correctBtn = document.getElementById('correctBtn');
+        const incorrectBtn = document.getElementById('incorrectBtn');
+        const feedbackMessage = document.getElementById('feedbackMessage');
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const questionText = questionInput.value.trim();
+            if (questionText === "") {
+                answerDiv.innerHTML = "<p style='color: #FF3333;'>> System Error: Query cannot be empty.</p>";
+                feedbackSection.style.display = 'none'; // Hide feedback on error
                 return;
             }
 
-            // Display a loading message
-            answerDiv.innerHTML = "<p>Loading answer...</p>";
+            currentQuestion = questionText; // Store question
+            answerDiv.innerHTML = "<p>> Processing Query... Standby...</p>";
+            feedbackSection.style.display = 'none'; // Hide feedback section while loading new answer
+            feedbackMessage.textContent = ''; // Clear previous feedback message
+            correctBtn.disabled = false;
+            incorrectBtn.disabled = false;
+            correctBtn.classList.remove('selected');
+            incorrectBtn.classList.remove('selected');
 
-            // --- Backend Integration Point ---
-            // This is now configured to call your Flask backend API
-            // Make sure your Flask server is running on http://127.0.0.1:5000
-            const backendUrl = " https://6d1f-69-143-211-57.ngrok-free.app/api/ask";
-            //'http://127.0.0.1:5000/api/ask';
+
+            const backendUrl = "https://323d-69-143-211-57.ngrok-free.app/api/ask"; // Ensure this is your correct ngrok URL
 
             try {
                 const response = await fetch(backendUrl, {
-                    method: 'POST', // We are sending data (the question)
-                    headers: {
-                        'Content-Type': 'application/json', // Telling the server we are sending JSON
-                    },
-                    // Sending the question as a JSON string with key 'question'
-                    body: JSON.stringify({ question: question }),
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: questionText }),
                 });
 
-                // Check if the HTTP response status is OK (200-299)
                 if (!response.ok) {
-                    // Attempt to read error details from the response body
                     const errorData = await response.json();
-                    throw new Error(`HTTP error! status: ${response.status}, Details: ${errorData.error || response.statusText}`);
+                    throw new Error(`Connection Error ${response.status}: ${errorData.error || response.statusText}`);
                 }
 
-                // Parse the JSON response from the server
                 const data = await response.json();
-                // Extract the 'answer' field from the JSON data
-                const answer = data.answer;
-
-                // Display the answer in the answer div
-                answerDiv.innerHTML = `<p>${answer}</p>`;
+                currentAnswer = data.answer; // Store answer
+                const formattedAnswer = currentAnswer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                answerDiv.innerHTML = `<p>> System Response:</p><p>${formattedAnswer}</p>`;
+                feedbackSection.style.display = 'block'; // Show feedback section
 
             } catch (error) {
-                // Log the error to the console and display an error message to the user
                 console.error('Error fetching answer:', error);
-                answerDiv.innerHTML = `<p style='color: red;'>Error getting answer: ${error.message}. Make sure your backend server is running.</p>`;
+                answerDiv.innerHTML = `<p style='color: #FF3333;'>> System Error: ${error.message}. Verify backend connection.</p>`;
+                feedbackSection.style.display = 'none'; // Hide feedback on error
             }
         });
+
+        async function submitFeedback(isCorrect) {
+            if (!currentQuestion || !currentAnswer) return;
+
+            const feedback = isCorrect ? "correct" : "incorrect";
+            const feedbackUrl = "/api/log_feedback"; // Relative URL to your Flask feedback endpoint
+
+            try {
+                const response = await fetch(feedbackUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: currentQuestion,
+                        answer: currentAnswer,
+                        feedback: feedback
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Feedback Error ${response.status}: ${errorData.error || response.statusText}`);
+                }
+                
+                feedbackMessage.textContent = `> Feedback (${feedback}) submitted. Thank you!`;
+                correctBtn.disabled = true;
+                incorrectBtn.disabled = true;
+                if (isCorrect) correctBtn.classList.add('selected'); else incorrectBtn.classList.add('selected');
+
+
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                feedbackMessage.textContent = `> Error submitting feedback: ${error.message}`;
+            }
+        }
+
+        correctBtn.addEventListener('click', () => submitFeedback(true));
+        incorrectBtn.addEventListener('click', () => submitFeedback(false));
     </script>
 </body>
 </html>
