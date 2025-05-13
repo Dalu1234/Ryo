@@ -176,8 +176,8 @@
             correctBtn.classList.remove('selected');
             incorrectBtn.classList.remove('selected');
 
-
-            const backendUrl = "https://323d-69-143-211-57.ngrok-free.app/api/ask"; // Ensure this is your correct ngrok URL
+            // IMPORTANT: Replace "https://your-service-name.onrender.com" with your actual Render service URL
+            const backendUrl = "https://your-service-name.onrender.com/api/ask"; // <<< CHANGE THIS LINE
 
             try {
                 const response = await fetch(backendUrl, {
@@ -199,7 +199,7 @@
 
             } catch (error) {
                 console.error('Error fetching answer:', error);
-                answerDiv.innerHTML = `<p style='color: #FF3333;'>> System Error: ${error.message}. Verify backend connection.</p>`;
+                answerDiv.innerHTML = `<p style='color: #FF3333;'>> System Error: ${error.message}. Verify backend connection and check browser console for CORS issues if any.</p>`;
                 feedbackSection.style.display = 'none'; // Hide feedback on error
             }
         });
@@ -208,7 +208,8 @@
             if (!currentQuestion || !currentAnswer) return;
 
             const feedback = isCorrect ? "correct" : "incorrect";
-            const feedbackUrl = "/api/log_feedback"; // Relative URL to your Flask feedback endpoint
+            // IMPORTANT: Replace "https://your-service-name.onrender.com" with your actual Render service URL
+            const feedbackUrl = "https://your-service-name.onrender.com/api/log_feedback"; // <<< CHANGE THIS LINE
 
             try {
                 const response = await fetch(feedbackUrl, {
@@ -230,7 +231,6 @@
                 correctBtn.disabled = true;
                 incorrectBtn.disabled = true;
                 if (isCorrect) correctBtn.classList.add('selected'); else incorrectBtn.classList.add('selected');
-
 
             } catch (error) {
                 console.error('Error submitting feedback:', error);
