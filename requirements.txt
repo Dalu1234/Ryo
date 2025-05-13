@@ -1,7 +1,7 @@
 flask
 flask-cors
 langchain
-langchain-community # Added this line
+langchain-community
 langchain-groq
 langchain-huggingface # For HuggingFaceEmbeddings
 qdrant-client
@@ -10,6 +10,10 @@ langchain-text-splitters
 langgraph
 PyMuPDF # For PDF loading
 gunicorn # For production server
-python-dotenv # Good for local .env file handling, though Render uses its own env vars
+python-dotenv # Good for local .env file handling
 sentence-transformers # Dependency for HuggingFaceEmbeddings
+huggingface_hub[hf_xet] # Added for Xet Storage warning
+
 # Add any other specific versions if needed, e.g., flask==2.3.0
+# Ensure qdrant-client version is compatible with your Qdrant server version
+# e.g., qdrant-client>=1.7.0
