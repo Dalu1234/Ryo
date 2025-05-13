@@ -1,88 +1,88 @@
 # app.py
 import logging
-from flask import Flask, request, jsonify, render_template # Import render_template
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import os # For ensuring logs directory exists
+import os
 
-# --- Configure Interaction Logger (as before) ---
-interaction_logger = logging.getLogger('interaction_logger')
-interaction_logger.setLevel(logging.INFO)
-interaction_handler = logging.FileHandler('interaction_log.txt')
-interaction_formatter = logging.Formatter('%(asctime)s - %(levelname)s - Q: %(question)s - A: %(answer)s')
-# To add question and answer directly into message, we'll handle it in the logging call
+# --- Configure Unified Console Logger ---
+# All logs will go to stdout/stderr, which Render will capture.
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__) # Use a common logger
 
-# A more flexible formatter for interaction logger:
-interaction_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-interaction_handler.setFormatter(interaction_formatter)
-interaction_logger.addHandler(interaction_handler)
-interaction_logger.propagate = False # Prevent double logging if root logger also configured
-
-# --- Configure Feedback Logger ---
-feedback_logger = logging.getLogger('feedback_logger')
-feedback_logger.setLevel(logging.INFO)
-feedback_handler = logging.FileHandler('feedback_log.txt') # Separate file for feedback
-# Formatter for feedback including question, answer, and feedback status
-feedback_formatter = logging.Formatter('%(asctime)s - %(levelname)s - Rating: %(feedback_status)s - Q: "%(question)s" - A: "%(answer)s"')
-
-# For direct message formatting for feedback_logger:
-feedback_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-feedback_handler.setFormatter(feedback_formatter)
-feedback_logger.addHandler(feedback_handler)
-feedback_logger.propagate = False # Prevent double logging
-
-# Import your RAG graph and setup from main.py and set_env.py
+# Import your RAG graph and setup
 try:
-    from main import graph
-    interaction_logger.info("Successfully imported RAG graph from main.py")
+    from main import graph # graph should be initialized in main.py after set_env
+    from set_env import vector_store # To check if it's available
+    if vector_store is None:
+        logger.error("Vector store not available. Check Qdrant connection in set_env.py.")
+    if graph is None: # main.py might not explicitly set graph to None on error
+         logger.error("RAG graph is None. Check main.py and set_env.py for errors.")
+    logger.info("Successfully imported RAG graph and related components.")
 except ImportError as e:
-    interaction_logger.error(f"Error importing RAG graph: {e}")
-    interaction_logger.info("Please ensure main.py exists and is accessible.")
+    logger.error(f"Error importing RAG graph or components: {e}")
+    logger.info("Please ensure main.py and set_env.py exist and are accessible, and Qdrant is configured.")
     graph = None
+    vector_store = None
+except Exception as e:
+    logger.error(f"An unexpected error occurred during import: {e}")
+    graph = None
+    vector_store = None
+
 
 app = Flask(__name__)
-CORS(app) # Enable CORS for all routes, including the new feedback route
+CORS(app)
 
 @app.route('/api/ask', methods=['POST'])
 def ask_rag():
-    if graph is None:
-        interaction_logger.error("RAG graph not initialized.")
-        return jsonify({"error": "RAG graph not initialized. Check backend setup."}), 500
+    if graph is None or vector_store is None:
+        logger.error("RAG graph or vector_store not initialized properly.")
+        return jsonify({"error": "Backend RAG system not initialized. Check server logs."}), 500
 
     data = request.get_json()
     if not data or 'question' not in data:
-        interaction_logger.warning("Invalid request to /api/ask: 'question' not in JSON body.")
+        logger.warning("Invalid request to /api/ask: 'question' not in JSON body.")
         return jsonify({"error": "Invalid request. Please provide a 'question' in the JSON body."}), 400
 
     question = data['question']
-    interaction_logger.info(f"Received question: \"{question}\"")
+    logger.info(f"Received question for /api/ask: \"{question}\"")
 
     try:
+        # Ensure the graph uses the potentially updated vector_store from set_env
+        # If 'graph' is a compiled LangGraph object, it should use the 'vector_store'
+        # that was in scope when its components (like 'retrieve') were defined.
+        # Re-compiling or ensuring components have access to the latest vector_store might be needed
+        # if vector_store could change after initial graph compilation.
+        # For this setup, main.py should define 'graph' after 'vector_store' is set in set_env.py.
+
         result = graph.invoke({"question": question})
         answer = result.get("answer", "No answer found.")
-        interaction_logger.info(f"Generated answer: \"{answer}\" for question: \"{question}\"")
-        return jsonify({"answer": answer, "question": question}) # Optionally return question for context
+        logger.info(f"Generated answer: \"{answer}\" for question: \"{question}\"")
+        return jsonify({"answer": answer, "question": question})
 
     except Exception as e:
-        interaction_logger.error(f"Error during RAG invocation for question \"{question}\": {e}")
+        logger.error(f"Error during RAG invocation for question \"{question}\": {e}", exc_info=True)
         return jsonify({"error": f"An error occurred while processing your question: {e}"}), 500
 
 @app.route('/api/log_feedback', methods=['POST'])
 def log_feedback():
     data = request.get_json()
     if not data:
+        logger.warning("Invalid request to /api/log_feedback: No data provided.")
         return jsonify({"error": "Invalid request. No data provided."}), 400
 
     question = data.get('question')
     answer = data.get('answer')
-    feedback_status = data.get('feedback') # "correct" or "incorrect"
+    feedback_status = data.get('feedback')
 
     if not all([question, answer, feedback_status]):
-        feedback_logger.warning(f"Invalid feedback data received: {data}")
+        logger.warning(f"Invalid feedback data received: {data}")
         return jsonify({"error": "Invalid feedback. Missing 'question', 'answer', or 'feedback'."}), 400
 
-    # Log the feedback
-    feedback_logger.info(f"Feedback: {feedback_status.upper()} - Question: \"{question}\" - Answer: \"{answer}\"")
-    
+    # Log the feedback to console (Render will pick this up)
+    # For persistent feedback logging, you'd need a database or external logging service.
+    logger.info(f"FEEDBACK: Status: {feedback_status.upper()} - Question: \"{question}\" - Answer: \"{answer}\"")
+
     return jsonify({"message": "Feedback received successfully."}), 200
 
 @app.route('/')
@@ -90,10 +90,6 @@ def index():
     """Serve the index.html file."""
     return render_template('index.html')
 
-if __name__ == '__main__':
-    # Ensure logs directory exists (optional, if logging to a sub-directory)
-    # if not os.path.exists('logs'):
-    #    os.makedirs('logs')
-    # Then use 'logs/interaction_log.txt' and 'logs/feedback_log.txt'
-
-    app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
+# Remove the if __name__ == '__main__': block for Gunicorn
+# if __name__ == '__main__':
+#     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False) # This line is for local dev server

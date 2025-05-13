@@ -1,0 +1,14 @@
+flask
+flask-cors
+langchain
+langchain-groq
+langchain-huggingface # For HuggingFaceEmbeddings
+qdrant-client
+langchain-qdrant
+langchain-text-splitters
+langgraph
+PyMuPDF # For PDF loading
+gunicorn # For production server
+python-dotenv # Good for local .env file handling, though Render uses its own env vars
+sentence-transformers # Dependency for HuggingFaceEmbeddings
+# Add any other specific versions if needed, e.g., flask==2.3.0
