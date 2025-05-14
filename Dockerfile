@@ -1,30 +1,32 @@
-# Use an official Python runtime as a parent image
-FROM python:3.10-slim
+    # Use an official Python runtime as a parent image
+    FROM python:3.10-slim
 
-# Set the working directory in the container
-WORKDIR /app
+    # Set the working directory in the container
+    WORKDIR /app
 
-# Copy the requirements file into the container at /app
-COPY requirements.txt .
+    # Copy the requirements file into the container at /app
+    COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
-# Using --no-cache-dir to reduce image size
-RUN pip install --no-cache-dir -r requirements.txt
+    # Install any needed packages specified in requirements.txt
+    # Using --no-cache-dir to reduce image size
+    RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code into the container at /app
-COPY . .
+    # Copy the rest of the application code into the container at /app
+    COPY . .
 
-# Make port 80 available to the world outside this container (Render will map this)
-# Gunicorn will bind to the port specified by Render's PORT env var,
-# but exposing a default like 80 or a common one is good practice.
-# Render will likely use its own internal port mapping.
-EXPOSE 8000
+    # --- Docker Build Debugging Steps ---
+    RUN echo "--- Docker Build Log: Verifying contents of /app ---" && ls -la /app
+    RUN echo "--- Docker Build Log: Contents of /app/set_env.py ---" && cat /app/set_env.py
+    RUN echo "--- Docker Build Log: Attempting to execute /app/set_env.py directly ---"
+    # Run set_env.py and allow it to fail without stopping the build, but print its output
+    RUN python /app/set_env.py || (echo "--- Docker Build Log: set_env.py execution failed or had non-zero exit ---" && exit 0)
+    RUN echo "--- Docker Build Log: Finished attempting to execute /app/set_env.py ---"
+    # --- End Docker Build Debugging Steps ---
 
-# Define environment variable for the PORT Gunicorn should listen on
-# Render will set this, but having a default can be useful.
-ENV PORT 8000
+    # Make port available (Gunicorn will bind to $PORT)
+    ENV PORT 8000
+    EXPOSE 8000 # This just documents the port, Gunicorn uses $PORT
 
-# Command to run the application using Gunicorn
-# Render will inject the actual $PORT it wants Gunicorn to listen on.
-# The 'app:app' refers to the 'app' Flask instance in your 'app.py' file.
-CMD sh -c 'gunicorn --bind "0.0.0.0:$PORT" app:app'
+    # Command to run the application using Gunicorn
+    CMD sh -c 'gunicorn --bind "0.0.0.0:$PORT" app:app'
+    
