@@ -3,17 +3,28 @@ flask-cors
 langchain
 langchain-community
 langchain-groq
-langchain-huggingface # For HuggingFaceEmbeddings
+langchain-huggingface
 qdrant-client
 langchain-qdrant
 langchain-text-splitters
 langgraph
-PyMuPDF # For PDF loading
-gunicorn # For production server
-python-dotenv # Good for local .env file handling
-sentence-transformers # Dependency for HuggingFaceEmbeddings
-huggingface_hub[hf_xet] # Added for Xet Storage warning
+PyMuPDF
+gunicorn
+python-dotenv
+sentence-transformers
 
-# Add any other specific versions if needed, e.g., flask==2.3.0
-# Ensure qdrant-client version is compatible with your Qdrant server version
-# e.g., qdrant-client>=1.7.0
+# Specify CPU-only versions for PyTorch and related packages
+# These will be fetched using the --extra-index-url in the Dockerfile
+torch==2.3.0+cpu
+torchvision==0.18.0+cpu
+torchaudio==2.3.0+cpu
+# ---
+
+huggingface_hub[hf_xet]
+
+# Ensure other dependencies are compatible or remove version pins if unsure
+# Example: protobuf might have specific version needs with other libs
+protobuf>=3.20.0,<4.22.0 # Example of pinning if needed, adjust as per actual compatibility
+# For instance, torch 2.3.0 might work well with a more recent protobuf,
+# but older Langchain versions sometimes had issues with very new protobuf versions.
+# Start without the protobuf pin and add it only if specific errors arise.

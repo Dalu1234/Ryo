@@ -9,7 +9,8 @@ COPY requirements.txt .
 
 # Install any needed packages specified in requirements.txt
 # Using --no-cache-dir to reduce image size
-RUN pip install --no-cache-dir -r requirements.txt
+# Added --extra-index-url for CPU-only PyTorch
+RUN pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 # Copy the rest of the application code into the container at /app
 COPY . .
@@ -26,7 +27,6 @@ RUN echo "--- Docker Build Log: Finished attempting to execute /app/set_env.py -
 # Make port available (Gunicorn will bind to $PORT)
 ENV PORT 8000
 EXPOSE 8000
-# ^^^ Changed this line: Removed the comment
 
 # Command to run the application using Gunicorn
 CMD sh -c 'gunicorn --bind "0.0.0.0:$PORT" app:app'
