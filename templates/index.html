@@ -176,8 +176,7 @@
             correctBtn.classList.remove('selected');
             incorrectBtn.classList.remove('selected');
 
-            // IMPORTANT: Replace "https://your-service-name.onrender.com" with your actual Render service URL
-            const backendUrl = "https://your-service-name.onrender.com/api/ask"; // <<< CHANGE THIS LINE
+            const backendUrl = "http://ec2-18-219-255-192.us-east-2.compute.amazonaws.com/api/ask";
 
             try {
                 const response = await fetch(backendUrl, {
@@ -208,8 +207,7 @@
             if (!currentQuestion || !currentAnswer) return;
 
             const feedback = isCorrect ? "correct" : "incorrect";
-            // IMPORTANT: Replace "https://your-service-name.onrender.com" with your actual Render service URL
-            const feedbackUrl = "https://your-service-name.onrender.com/api/log_feedback"; // <<< CHANGE THIS LINE
+            const feedbackUrl = "http://ec2-18-219-255-192.us-east-2.compute.amazonaws.com/api/log_feedback";
 
             try {
                 const response = await fetch(feedbackUrl, {
