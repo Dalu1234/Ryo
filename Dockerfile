@@ -27,4 +27,4 @@ ENV PORT 8000
 # Command to run the application using Gunicorn
 # Render will inject the actual $PORT it wants Gunicorn to listen on.
 # The 'app:app' refers to the 'app' Flask instance in your 'app.py' file.
-CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "app:app"]
+CMD sh -c 'gunicorn --bind "0.0.0.0:$PORT" app:app'
