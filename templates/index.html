@@ -3,241 +3,457 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R.A.G. Terminal</title>
+    <title>R.A.G. Terminal - Chat Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'VT323', monospace;
-            background-color: #0D0208;
-            color: #00FF41;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            font-size: 18px;
+            font-family: 'Inter', sans-serif;
+            background-color: #1e1e2d; /* Darker background for the whole page */
         }
-        .container {
-            background-color: #000000;
-            padding: 25px 35px;
-            border: 2px solid #00FF41;
-            box-shadow: 0 0 15px #00FF41, inset 0 0 5px rgba(0, 255, 65, 0.3);
-            max-width: 700px;
-            width: 100%;
-            text-align: left;
-        }
-        h1 {
-            color: #00FF41;
-            font-size: 2.5em;
-            text-align: center;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        label {
-            display: block;
-            margin-bottom: 10px;
-            color: #00FF41;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 25px;
-            border: 1px solid #00FF41;
-            background-color: #111;
-            color: #00FF41;
-            font-family: 'VT323', monospace;
-            font-size: 1.1em;
-            box-sizing: border-box;
-        }
-        input[type="text"]::placeholder { color: #008F20; }
-        input[type="text"]:focus { outline: none; box-shadow: 0 0 8px #00FF41; }
-        button {
-            background-color: #00FF41;
-            color: #000000;
-            padding: 12px 20px;
-            border: none;
-            cursor: pointer;
-            font-family: 'VT323', monospace;
-            font-size: 1.2em;
-            text-transform: uppercase;
-            transition: background-color 0.2s ease, color 0.2s ease;
-            width: 100%;
-            display: block;
-            letter-spacing: 1px;
-            margin-bottom: 10px; /* Added margin for spacing if multiple buttons */
-        }
-        button:hover { background-color: #00AA2A; color: #111111; }
-        button:active { background-color: #008F20; transform: translateY(1px); }
 
-        #answer {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #080808;
-            border: 1px dashed #00FF41;
-            min-height: 100px;
-            white-space: pre-wrap;
+        /* Scrollbar styling for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2a2a3a; /* Darker track */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4f4f6a; /* Lighter thumb */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6a6a86; /* Lighter thumb on hover */
+        }
+
+        .chat-bubble-user {
+            background-color: #007A5E; /* A slightly muted green, reminiscent of the old theme */
+            color: #ffffff;
+            align-self: flex-end;
+            max-width: 75%;
+        }
+        .chat-bubble-ai {
+            background-color: #3a3f47; /* Darker gray for AI */
+            color: #e0e0e0;
+            align-self: flex-start;
+            max-width: 75%;
+        }
+        .chat-bubble {
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             word-wrap: break-word;
             line-height: 1.6;
         }
-        #answer p { margin: 0 0 10px 0; color: #00FF41; }
-        #answer p:last-child { margin-bottom: 0; }
-
-        .feedback-section {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #00330F; /* Separator line */
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-left: 10px;
+        }
+        .avatar-user {
+            background-color: #005C45; /* Darker green for user avatar */
+            color: white;
+        }
+        .avatar-ai {
+            background-color: #4A5568; /* Darker gray for AI avatar */
+            color: white;
         }
         .feedback-buttons button {
-            width: auto; /* Allow buttons to size to content */
-            padding: 8px 15px;
-            font-size: 1em;
-            margin-right: 10px;
-            background-color: #222;
-            color: #00FF41;
-            border: 1px solid #00FF41;
+            background-color: #4a5568; /* Dark gray */
+            color: #e0e0e0;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            border-radius: 12px;
+            margin-left: 8px;
+            transition: background-color 0.2s;
         }
         .feedback-buttons button:hover {
-            background-color: #00FF41;
-            color: #000;
+            background-color: #5a6578;
         }
-        .feedback-buttons button.selected {
-            background-color: #00FF41;
-            color: #000;
+         .feedback-buttons button.selected {
+            background-color: #007A5E;
+            color: white;
             cursor: not-allowed;
         }
-        .feedback-message {
-            font-size: 0.9em;
-            color: #00AA2A; /* Softer green for feedback confirmation */
-            margin-top: 10px;
+        .history-item {
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: #d1d5db; /* Light gray text */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 0.9em;
-            color: #008F20;
+        .history-item:hover {
+            background-color: #3a3f47; /* Darker hover for history items */
+        }
+        .history-item.active {
+            background-color: #4f4f6a; /* Active chat color */
+            color: #ffffff;
+        }
+        .input-shadow {
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>R.A.G. Terminal</h1>
+<body class="h-screen flex overflow-hidden">
 
-        <label for="question">> Enter Your Query:</label>
-        <input type="text" id="question" name="question" placeholder="e.g., What are the allocation guidelines for...">
-
-        <button id="submitBtn">Execute Query</button>
-
-        <div id="answer">
-            <p>> System Response Will Appear Here...</p>
+    <aside class="w-1/4 md:w-1/5 lg:w-1/6 bg-[#252532] p-4 flex flex-col space-y-3 border-r border-gray-700 overflow-y-auto">
+        <button id="newChatBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+            + New Chat
+        </button>
+        <h2 class="text-xs text-gray-400 uppercase tracking-wider font-semibold pt-2">History</h2>
+        <div id="chatHistory" class="flex-grow space-y-1">
+            <p class="text-gray-500 text-sm">No chats yet.</p>
         </div>
-        
-        <div id="feedbackSection" class="feedback-section" style="display: none;">
-            <p>> What is your assesment of the provided answer?</p>
-            <div class="feedback-buttons">
-                <button id="correctBtn">Correct </button>
-                <button id="incorrectBtn">Incorrect </button>
+        <div class="mt-auto text-center text-xs text-gray-500">
+            <p>&copy; 2025 Ryo Corp.</p>
+            <p>Chat Module v2.0</p>
+        </div>
+    </aside>
+
+    <main class="flex-grow flex flex-col h-screen bg-[#1e1e2d]">
+        <div id="chatMessages" class="flex-grow p-6 space-y-4 overflow-y-auto bg-[#2a2a3a] rounded-t-lg">
+            <div class="flex justify-center items-center h-full">
+                <div class="text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" />
+                    </svg>
+                    <h2 class="mt-2 text-lg font-medium text-gray-400">R.A.G. Terminal</h2>
+                    <p class="mt-1 text-sm text-gray-500">Ask me anything about the Allocations document!</p>
+                </div>
             </div>
-            <p id="feedbackMessage" class="feedback-message"></p>
         </div>
-    </div>
-    <div class="footer">
-        <p>&copy; 2025 Ryo Corp. - Document Analysis Module v1.0</p>
-    </div>
+
+        <div class="bg-[#252532] p-4 border-t border-gray-700 input-shadow">
+            <div class="flex items-center space-x-3">
+                <input type="text" id="userInput" placeholder="Enter your query..." class="flex-grow bg-[#3a3f47] text-gray-200 placeholder-gray-500 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none shadow-sm transition duration-150 ease-in-out" autocomplete="off">
+                <button id="sendBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center">
+                    Send
+                    <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </div>
+        </div>
+    </main>
 
     <script>
-        // Store current question and answer globally for feedback
-        let currentQuestion = "";
-        let currentAnswer = "";
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatHistory = document.getElementById('chatHistory');
+        const newChatBtn = document.getElementById('newChatBtn');
 
-        const questionInput = document.getElementById('question');
-        const answerDiv = document.getElementById('answer');
-        const feedbackSection = document.getElementById('feedbackSection');
-        const correctBtn = document.getElementById('correctBtn');
-        const incorrectBtn = document.getElementById('incorrectBtn');
-        const feedbackMessage = document.getElementById('feedbackMessage');
+        // IMPORTANT: Replace with your actual deployed backend URL
+        const backendApiUrl = "http://ec2-18-219-255-192.us-east-2.compute.amazonaws.com"; 
 
-        document.getElementById('submitBtn').addEventListener('click', async () => {
-            const questionText = questionInput.value.trim();
-            if (questionText === "") {
-                answerDiv.innerHTML = "<p style='color: #FF3333;'>> System Error: Query cannot be empty.</p>";
-                feedbackSection.style.display = 'none'; // Hide feedback on error
-                return;
+        let currentChatId = null;
+        let chats = {}; // Store chat messages by chatId { chatId: [{sender, text, feedbackGiven}, ...]}
+        let currentQueryForFeedback = "";
+        let currentAnswerForFeedback = "";
+        let currentFeedbackButtonsId = null;
+
+        function initializeChat() {
+            // Clear the "No chats yet" message if there's history
+            if (Object.keys(chats).length > 0) {
+                const noChatsP = chatHistory.querySelector('p.text-gray-500');
+                if (noChatsP) noChatsP.remove();
             }
+            // If there's an active chat, load it. Otherwise, start a new one.
+            if (currentChatId && chats[currentChatId]) {
+                renderChatMessages(currentChatId);
+                setActiveHistoryItem(currentChatId);
+            } else {
+                startNewChat();
+            }
+        }
+        
+        function createMessageBubble(sender, text, messageId = null) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.classList.add('flex', 'items-end', 'w-full', 'mb-2');
 
-            currentQuestion = questionText; // Store question
-            answerDiv.innerHTML = "<p>> Processing Query... Standby...</p>";
-            feedbackSection.style.display = 'none'; // Hide feedback section while loading new answer
-            feedbackMessage.textContent = ''; // Clear previous feedback message
-            correctBtn.disabled = false;
-            incorrectBtn.disabled = false;
-            correctBtn.classList.remove('selected');
-            incorrectBtn.classList.remove('selected');
+            const avatar = document.createElement('div');
+            avatar.classList.add('avatar');
+            
+            const bubble = document.createElement('div');
+            bubble.classList.add('chat-bubble');
+            bubble.textContent = text;
 
-            const backendUrl = "http://ec2-18-219-255-192.us-east-2.compute.amazonaws.com/api/ask";
+            if (sender === 'user') {
+                avatar.classList.add('avatar-user');
+                avatar.textContent = 'U';
+                bubble.classList.add('chat-bubble-user');
+                messageWrapper.classList.add('justify-end');
+                messageWrapper.appendChild(bubble);
+                messageWrapper.appendChild(avatar); // Avatar on the right for user
+            } else { // AI
+                avatar.classList.add('avatar-ai');
+                avatar.textContent = 'AI';
+                bubble.classList.add('chat-bubble-ai');
+                messageWrapper.classList.add('justify-start');
+                messageWrapper.appendChild(avatar); // Avatar on the left for AI
+                messageWrapper.appendChild(bubble);
+
+                // Add feedback section for AI messages
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.classList.add('feedback-buttons', 'mt-1', 'ml-12'); // Indent feedback
+                feedbackDiv.id = `feedback-${messageId || Date.now()}`; // Unique ID for feedback buttons
+
+                const correctBtn = document.createElement('button');
+                correctBtn.textContent = '👍 Correct';
+                correctBtn.onclick = () => handleFeedback(true, text, bubble.previousSibling.textContent, feedbackDiv.id); // Pass AI text, User query, and buttons ID
+
+                const incorrectBtn = document.createElement('button');
+                incorrectBtn.textContent = '👎 Incorrect';
+                incorrectBtn.onclick = () => handleFeedback(false, text, bubble.previousSibling.textContent, feedbackDiv.id);
+
+                feedbackDiv.appendChild(correctBtn);
+                feedbackDiv.appendChild(incorrectBtn);
+                bubble.insertAdjacentElement('afterend', feedbackDiv); // Place feedback below the bubble
+            }
+            return messageWrapper;
+        }
+
+        function addMessageToChat(sender, text, chatId, messageId = null) {
+            if (!chats[chatId]) {
+                chats[chatId] = [];
+            }
+            const messageData = { sender, text, feedbackGiven: null, id: messageId || `msg-${Date.now()}`};
+            chats[chatId].push(messageData);
+
+            if (chatId === currentChatId) {
+                // If it's the first message in the chat window, clear placeholder
+                if (chatMessages.children.length === 1 && chatMessages.firstElementChild.classList.contains('h-full')) {
+                    chatMessages.innerHTML = '';
+                }
+                const bubbleElement = createMessageBubble(sender, text, messageData.id);
+                chatMessages.appendChild(bubbleElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+            }
+            updateChatHistoryUI();
+        }
+
+        async function handleSend() {
+            const query = userInput.value.trim();
+            if (query === "") return;
+
+            if (!currentChatId) { // Should always have a currentChatId after initialization
+                startNewChat();
+            }
+            
+            addMessageToChat('user', query, currentChatId);
+            currentQueryForFeedback = query; // Store for feedback context
+            userInput.value = "";
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = 'Processing... <svg class="animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
 
             try {
-                const response = await fetch(backendUrl, {
+                const response = await fetch(`${backendApiUrl}/api/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: questionText }),
+                    body: JSON.stringify({ question: query }),
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(`Connection Error ${response.status}: ${errorData.error || response.statusText}`);
+                    throw new Error(`API Error ${response.status}: ${errorData.error || response.statusText}`);
                 }
 
                 const data = await response.json();
-                currentAnswer = data.answer; // Store answer
-                const formattedAnswer = currentAnswer.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                answerDiv.innerHTML = `<p>> System Response:</p><p>${formattedAnswer}</p>`;
-                feedbackSection.style.display = 'block'; // Show feedback section
+                currentAnswerForFeedback = data.answer; // Store for feedback context
+                addMessageToChat('ai', data.answer, currentChatId);
 
             } catch (error) {
                 console.error('Error fetching answer:', error);
-                answerDiv.innerHTML = `<p style='color: #FF3333;'>> System Error: ${error.message}. Verify backend connection and check browser console for CORS issues if any.</p>`;
-                feedbackSection.style.display = 'none'; // Hide feedback on error
+                addMessageToChat('ai', `System Error: ${error.message}. Please check connection or try again.`, currentChatId);
+            } finally {
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = 'Send <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
+                userInput.focus();
             }
-        });
+        }
 
-        async function submitFeedback(isCorrect) {
-            if (!currentQuestion || !currentAnswer) return;
+        async function handleFeedback(isCorrect, aiResponseText, userQueryText, buttonsId) {
+            const feedbackStatus = isCorrect ? "correct" : "incorrect";
+            
+            // Disable buttons to prevent multiple submissions
+            const feedbackButtonsContainer = document.getElementById(buttonsId);
+            if (!feedbackButtonsContainer) return;
 
-            const feedback = isCorrect ? "correct" : "incorrect";
-            const feedbackUrl = "http://ec2-18-219-255-192.us-east-2.compute.amazonaws.com/api/log_feedback";
+            const buttons = feedbackButtonsContainer.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+            if (isCorrect) {
+                feedbackButtonsContainer.querySelector('button:nth-child(1)').classList.add('selected');
+            } else {
+                feedbackButtonsContainer.querySelector('button:nth-child(2)').classList.add('selected');
+            }
+
+
+            // Find the message in the chats data structure to mark feedback as given
+            if (currentChatId && chats[currentChatId]) {
+                const messageIndex = chats[currentChatId].findIndex(msg => msg.text === aiResponseText && msg.sender === 'ai');
+                if (messageIndex !== -1) {
+                    chats[currentChatId][messageIndex].feedbackGiven = feedbackStatus;
+                }
+            }
 
             try {
-                const response = await fetch(feedbackUrl, {
+                const response = await fetch(`${backendApiUrl}/api/log_feedback`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        question: currentQuestion,
-                        answer: currentAnswer,
-                        feedback: feedback
+                        question: userQueryText, // Use the actual user query that led to this AI response
+                        answer: aiResponseText,
+                        feedback: feedbackStatus
                     }),
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(`Feedback Error ${response.status}: ${errorData.error || response.statusText}`);
+                    throw new Error(`Feedback API Error ${response.status}: ${errorData.error || response.statusText}`);
                 }
-                
-                feedbackMessage.textContent = `> Feedback (${feedback}) submitted. Thank you!`;
-                correctBtn.disabled = true;
-                incorrectBtn.disabled = true;
-                if (isCorrect) correctBtn.classList.add('selected'); else incorrectBtn.classList.add('selected');
+                console.log(`Feedback (${feedbackStatus}) submitted for: Q: ${userQueryText} A: ${aiResponseText}`);
+                // Optionally add a small confirmation message near the buttons
+                const confirmation = document.createElement('span');
+                confirmation.textContent = ' Thanks!';
+                confirmation.classList.add('text-xs', 'text-gray-400', 'ml-2');
+                feedbackButtonsContainer.appendChild(confirmation);
 
             } catch (error) {
                 console.error('Error submitting feedback:', error);
-                feedbackMessage.textContent = `> Error submitting feedback: ${error.message}`;
+                 buttons.forEach(btn => btn.disabled = false); // Re-enable buttons on error
+                 if (isCorrect) {
+                    feedbackButtonsContainer.querySelector('button:nth-child(1)').classList.remove('selected');
+                } else {
+                    feedbackButtonsContainer.querySelector('button:nth-child(2)').classList.remove('selected');
+                }
+                // Optionally show an error message to the user
             }
         }
 
-        correctBtn.addEventListener('click', () => submitFeedback(true));
-        incorrectBtn.addEventListener('click', () => submitFeedback(false));
+        function updateChatHistoryUI() {
+            chatHistory.innerHTML = ''; // Clear existing history items
+            const chatIds = Object.keys(chats);
+
+            if (chatIds.length === 0) {
+                 chatHistory.innerHTML = '<p class="text-gray-500 text-sm">No chats yet.</p>';
+                 return;
+            }
+
+            chatIds.sort((a, b) => parseInt(b.substring(5)) - parseInt(a.substring(5))); // Sort by newest first
+
+            chatIds.forEach(chatId => {
+                const firstUserMessage = chats[chatId].find(msg => msg.sender === 'user');
+                const historyText = firstUserMessage ? firstUserMessage.text.substring(0, 25) + (firstUserMessage.text.length > 25 ? '...' : '') : 'New Chat';
+                
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history-item');
+                historyItem.textContent = historyText;
+                historyItem.dataset.chatId = chatId;
+                if (chatId === currentChatId) {
+                    historyItem.classList.add('active');
+                }
+                historyItem.onclick = () => loadChat(chatId);
+                chatHistory.appendChild(historyItem);
+            });
+        }
+        
+        function renderChatMessages(chatId) {
+            chatMessages.innerHTML = ''; // Clear current messages
+            const messages = chats[chatId] || [];
+            if (messages.length === 0) {
+                 chatMessages.innerHTML = `<div class="flex justify-center items-center h-full">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" />
+                        </svg>
+                        <h2 class="mt-2 text-lg font-medium text-gray-400">R.A.G. Terminal</h2>
+                        <p class="mt-1 text-sm text-gray-500">Continue your conversation or start a new one.</p>
+                    </div>
+                </div>`;
+                return;
+            }
+
+            messages.forEach(msg => {
+                const bubbleElement = createMessageBubble(msg.sender, msg.text, msg.id);
+                chatMessages.appendChild(bubbleElement);
+                // Re-apply feedback status if it exists
+                if (msg.sender === 'ai' && msg.feedbackGiven) {
+                    const feedbackButtonsContainer = document.getElementById(`feedback-${msg.id}`);
+                    if (feedbackButtonsContainer) {
+                        const buttons = feedbackButtonsContainer.querySelectorAll('button');
+                        buttons.forEach(btn => btn.disabled = true);
+                        if (msg.feedbackGiven === 'correct') {
+                             feedbackButtonsContainer.querySelector('button:nth-child(1)').classList.add('selected');
+                        } else {
+                             feedbackButtonsContainer.querySelector('button:nth-child(2)').classList.add('selected');
+                        }
+                        const confirmation = document.createElement('span');
+                        confirmation.textContent = ' Thanks!';
+                        confirmation.classList.add('text-xs', 'text-gray-400', 'ml-2');
+                        feedbackButtonsContainer.appendChild(confirmation);
+                    }
+                }
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function setActiveHistoryItem(chatId) {
+            document.querySelectorAll('#chatHistory .history-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.chatId === chatId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function loadChat(chatId) {
+            currentChatId = chatId;
+            renderChatMessages(chatId);
+            setActiveHistoryItem(chatId);
+            userInput.focus();
+        }
+
+        function startNewChat() {
+            const newId = `chat-${Date.now()}`;
+            currentChatId = newId;
+            chats[currentChatId] = []; // Initialize with an empty array of messages
+            renderChatMessages(currentChatId); // This will show the placeholder
+            updateChatHistoryUI();
+            setActiveHistoryItem(currentChatId);
+            userInput.value = "";
+            userInput.focus();
+             // Clear the "No chats yet" message if it exists
+            const noChatsP = chatHistory.querySelector('p.text-gray-500');
+            if (noChatsP && Object.keys(chats).length > 0) noChatsP.remove();
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Prevent new line on Enter
+                handleSend();
+            }
+        });
+        newChatBtn.addEventListener('click', startNewChat);
+
+        // Initialize
+        initializeChat();
+
     </script>
 </body>
 </html>
