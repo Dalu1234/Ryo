@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R.A.G. Terminal - Chat Interface</title>
+    <title>R.A.G. Terminal - Conversational</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -11,101 +11,24 @@
             font-family: 'Inter', sans-serif;
             background-color: #1e1e2d; /* Darker background for the whole page */
         }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #2a2a3a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #4f4f6a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6a6a86; }
 
-        /* Scrollbar styling for webkit browsers */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #2a2a3a; /* Darker track */
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4f4f6a; /* Lighter thumb */
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6a6a86; /* Lighter thumb on hover */
-        }
-
-        .chat-bubble-user {
-            background-color: #007A5E; /* A slightly muted green, reminiscent of the old theme */
-            color: #ffffff;
-            align-self: flex-end;
-            max-width: 75%;
-        }
-        .chat-bubble-ai {
-            background-color: #3a3f47; /* Darker gray for AI */
-            color: #e0e0e0;
-            align-self: flex-start;
-            max-width: 75%;
-        }
-        .chat-bubble {
-            padding: 10px 15px;
-            border-radius: 18px;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            word-wrap: break-word;
-            line-height: 1.6;
-        }
-        .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            margin-right: 10px;
-            margin-left: 10px;
-        }
-        .avatar-user {
-            background-color: #005C45; /* Darker green for user avatar */
-            color: white;
-        }
-        .avatar-ai {
-            background-color: #4A5568; /* Darker gray for AI avatar */
-            color: white;
-        }
-        .feedback-buttons button {
-            background-color: #4a5568; /* Dark gray */
-            color: #e0e0e0;
-            padding: 4px 10px;
-            font-size: 0.8rem;
-            border-radius: 12px;
-            margin-left: 8px;
-            transition: background-color 0.2s;
-        }
-        .feedback-buttons button:hover {
-            background-color: #5a6578;
-        }
-         .feedback-buttons button.selected {
-            background-color: #007A5E;
-            color: white;
-            cursor: not-allowed;
-        }
-        .history-item {
-            padding: 10px 15px;
-            margin: 5px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            color: #d1d5db; /* Light gray text */
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .history-item:hover {
-            background-color: #3a3f47; /* Darker hover for history items */
-        }
-        .history-item.active {
-            background-color: #4f4f6a; /* Active chat color */
-            color: #ffffff;
-        }
-        .input-shadow {
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-        }
+        .chat-bubble-user { background-color: #007A5E; color: #ffffff; align-self: flex-end; max-width: 75%; }
+        .chat-bubble-ai { background-color: #3a3f47; color: #e0e0e0; align-self: flex-start; max-width: 75%; }
+        .chat-bubble { padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); word-wrap: break-word; line-height: 1.6; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 500; margin-right: 10px; margin-left: 10px; flex-shrink: 0; }
+        .avatar-user { background-color: #005C45; color: white; }
+        .avatar-ai { background-color: #4A5568; color: white; }
+        .feedback-buttons button { background-color: #4a5568; color: #e0e0e0; padding: 4px 10px; font-size: 0.8rem; border-radius: 12px; margin-left: 8px; transition: background-color 0.2s; }
+        .feedback-buttons button:hover { background-color: #5a6578; }
+        .feedback-buttons button.selected { background-color: #007A5E; color: white; cursor: not-allowed; }
+        .history-item { padding: 10px 15px; margin: 5px 0; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { background-color: #3a3f47; }
+        .history-item.active { background-color: #4f4f6a; color: #ffffff; }
+        .input-shadow { box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
@@ -116,27 +39,17 @@
         </button>
         <h2 class="text-xs text-gray-400 uppercase tracking-wider font-semibold pt-2">History</h2>
         <div id="chatHistory" class="flex-grow space-y-1">
-            <p class="text-gray-500 text-sm">No chats yet.</p>
+            <p class="text-gray-500 text-sm history-placeholder">No chats yet.</p>
         </div>
         <div class="mt-auto text-center text-xs text-gray-500">
             <p>&copy; 2025 Ryo Corp.</p>
-            <p>Chat Module v2.0</p>
+            <p>Conversational Module v2.1</p>
         </div>
     </aside>
 
     <main class="flex-grow flex flex-col h-screen bg-[#1e1e2d]">
-        <div id="chatMessages" class="flex-grow p-6 space-y-4 overflow-y-auto bg-[#2a2a3a] rounded-t-lg">
-            <div class="flex justify-center items-center h-full">
-                <div class="text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" />
-                    </svg>
-                    <h2 class="mt-2 text-lg font-medium text-gray-400">R.A.G. Terminal</h2>
-                    <p class="mt-1 text-sm text-gray-500">Ask me anything about the Allocations document!</p>
-                </div>
+        <div id="chatMessages" class="flex-grow p-6 space-y-2 overflow-y-auto bg-[#2a2a3a] rounded-t-lg">
             </div>
-        </div>
-
         <div class="bg-[#252532] p-4 border-t border-gray-700 input-shadow">
             <div class="flex items-center space-x-3">
                 <input type="text" id="userInput" placeholder="Enter your query..." class="flex-grow bg-[#3a3f47] text-gray-200 placeholder-gray-500 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none shadow-sm transition duration-150 ease-in-out" autocomplete="off">
@@ -149,46 +62,33 @@
     </main>
 
     <script>
-        const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const chatMessages = document.getElementById('chatMessages');
-        const chatHistory = document.getElementById('chatHistory');
-        const newChatBtn = document.getElementById('newChatBtn');
+        const userInputEl = document.getElementById('userInput');
+        const sendBtnEl = document.getElementById('sendBtn');
+        const chatMessagesEl = document.getElementById('chatMessages');
+        const chatHistoryEl = document.getElementById('chatHistory');
+        const newChatBtnEl = document.getElementById('newChatBtn');
 
-        // IMPORTANT: Replace with your actual deployed backend URL
-        const backendApiUrl = "http://ec2-18-219-255-192.us-east-2.compute.amazonaws.com"; 
+        const backendApiUrlBase = "http://ec2-18-219-255-192.us-east-2.compute.amazonaws.com"; // CHANGE THIS TO YOUR EC2 URL
 
-        let currentChatId = null;
-        let chats = {}; // Store chat messages by chatId { chatId: [{sender, text, feedbackGiven}, ...]}
-        let currentQueryForFeedback = "";
-        let currentAnswerForFeedback = "";
-        let currentFeedbackButtonsId = null;
+        let currentThreadId = null;
+        // Client-side store for display and simple history navigation.
+        // Backend checkpointer is the source of truth for LangGraph's memory.
+        let displayedChats = {}; // { threadId: [{sender, text, id (for feedback)}, ...] }
 
-        function initializeChat() {
-            // Clear the "No chats yet" message if there's history
-            if (Object.keys(chats).length > 0) {
-                const noChatsP = chatHistory.querySelector('p.text-gray-500');
-                if (noChatsP) noChatsP.remove();
-            }
-            // If there's an active chat, load it. Otherwise, start a new one.
-            if (currentChatId && chats[currentChatId]) {
-                renderChatMessages(currentChatId);
-                setActiveHistoryItem(currentChatId);
-            } else {
-                startNewChat();
-            }
+        function generateUUID() { // Simple UUID for thread_id
+            return 'chat-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10);
         }
-        
-        function createMessageBubble(sender, text, messageId = null) {
+
+        function createMessageBubbleDOM(sender, text, messageId) {
             const messageWrapper = document.createElement('div');
-            messageWrapper.classList.add('flex', 'items-end', 'w-full', 'mb-2');
+            messageWrapper.classList.add('flex', 'items-end', 'w-full', 'mb-3'); // Increased margin-bottom
 
             const avatar = document.createElement('div');
             avatar.classList.add('avatar');
             
             const bubble = document.createElement('div');
-            bubble.classList.add('chat-bubble');
-            bubble.textContent = text;
+            bubble.classList.add('chat-bubble', 'max-w-[75%]', 'lg:max-w-[70%]'); // Tailwind max-width
+            bubble.textContent = text; // Text content handles newlines automatically
 
             if (sender === 'user') {
                 avatar.classList.add('avatar-user');
@@ -196,75 +96,81 @@
                 bubble.classList.add('chat-bubble-user');
                 messageWrapper.classList.add('justify-end');
                 messageWrapper.appendChild(bubble);
-                messageWrapper.appendChild(avatar); // Avatar on the right for user
+                messageWrapper.appendChild(avatar);
             } else { // AI
                 avatar.classList.add('avatar-ai');
                 avatar.textContent = 'AI';
                 bubble.classList.add('chat-bubble-ai');
                 messageWrapper.classList.add('justify-start');
-                messageWrapper.appendChild(avatar); // Avatar on the left for AI
+                messageWrapper.appendChild(avatar);
                 messageWrapper.appendChild(bubble);
 
-                // Add feedback section for AI messages
+                const feedbackDivId = `feedback-${messageId}`;
                 const feedbackDiv = document.createElement('div');
-                feedbackDiv.classList.add('feedback-buttons', 'mt-1', 'ml-12'); // Indent feedback
-                feedbackDiv.id = `feedback-${messageId || Date.now()}`; // Unique ID for feedback buttons
+                feedbackDiv.classList.add('feedback-buttons', 'mt-1.5', 'ml-12', 'flex', 'space-x-2'); // Indent and style feedback
+                feedbackDiv.id = feedbackDivId;
 
                 const correctBtn = document.createElement('button');
-                correctBtn.textContent = '👍 Correct';
-                correctBtn.onclick = () => handleFeedback(true, text, bubble.previousSibling.textContent, feedbackDiv.id); // Pass AI text, User query, and buttons ID
+                correctBtn.textContent = '👍';
+                correctBtn.title = 'Correct';
+                correctBtn.onclick = () => handleFeedback(true, text, displayedChats[currentThreadId].find(m => m.id === messageId)?.userQuery || "Unknown query", feedbackDivId);
 
                 const incorrectBtn = document.createElement('button');
-                incorrectBtn.textContent = '👎 Incorrect';
-                incorrectBtn.onclick = () => handleFeedback(false, text, bubble.previousSibling.textContent, feedbackDiv.id);
+                incorrectBtn.textContent = '👎';
+                incorrectBtn.title = 'Incorrect';
+                incorrectBtn.onclick = () => handleFeedback(false, text, displayedChats[currentThreadId].find(m => m.id === messageId)?.userQuery || "Unknown query", feedbackDivId);
 
                 feedbackDiv.appendChild(correctBtn);
                 feedbackDiv.appendChild(incorrectBtn);
-                bubble.insertAdjacentElement('afterend', feedbackDiv); // Place feedback below the bubble
+                messageWrapper.appendChild(feedbackDiv); // Append feedback next to the bubble (adjust if needed)
             }
             return messageWrapper;
         }
-
-        function addMessageToChat(sender, text, chatId, messageId = null) {
-            if (!chats[chatId]) {
-                chats[chatId] = [];
+        
+        function displayMessageOnUI(sender, text, threadIdToUpdate, userQueryForFeedback = null) {
+            if (!displayedChats[threadIdToUpdate]) {
+                displayedChats[threadIdToUpdate] = [];
             }
-            const messageData = { sender, text, feedbackGiven: null, id: messageId || `msg-${Date.now()}`};
-            chats[chatId].push(messageData);
+            const messageId = `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+            const messageData = { sender, text, id: messageId };
+            if (sender === 'ai' && userQueryForFeedback) {
+                messageData.userQuery = userQueryForFeedback; // Store the user query that led to this AI answer
+            }
+            displayedChats[threadIdToUpdate].push(messageData);
 
-            if (chatId === currentChatId) {
-                // If it's the first message in the chat window, clear placeholder
-                if (chatMessages.children.length === 1 && chatMessages.firstElementChild.classList.contains('h-full')) {
-                    chatMessages.innerHTML = '';
+            if (threadIdToUpdate === currentThreadId) {
+                if (chatMessagesEl.childElementCount === 1 && chatMessagesEl.firstElementChild.classList.contains('h-full')) {
+                    chatMessagesEl.innerHTML = ''; // Clear placeholder
                 }
-                const bubbleElement = createMessageBubble(sender, text, messageData.id);
-                chatMessages.appendChild(bubbleElement);
-                chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+                const bubbleElement = createMessageBubbleDOM(sender, text, messageId);
+                chatMessagesEl.appendChild(bubbleElement);
+                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
             }
-            updateChatHistoryUI();
         }
 
         async function handleSend() {
-            const query = userInput.value.trim();
-            if (query === "") return;
+            const query = userInputEl.value.trim();
+            if (query === "" || !currentThreadId) return;
 
-            if (!currentChatId) { // Should always have a currentChatId after initialization
-                startNewChat();
-            }
-            
-            addMessageToChat('user', query, currentChatId);
-            currentQueryForFeedback = query; // Store for feedback context
-            userInput.value = "";
-            userInput.disabled = true;
-            sendBtn.disabled = true;
-            sendBtn.innerHTML = 'Processing... <svg class="animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-
+            displayMessageOnUI('user', query, currentThreadId);
+            userInputEl.value = "";
+            userInputEl.disabled = true;
+            sendBtnEl.disabled = true;
+            const originalSendBtnHtml = sendBtnEl.innerHTML;
+            sendBtnEl.innerHTML = 'Processing... <svg class="animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
             try {
-                const response = await fetch(`${backendApiUrl}/api/ask`, {
+                const payload = {
+                    question: query,
+                    thread_id: currentThreadId
+                    // Backend will use the checkpointer to get history for this thread_id
+                };
+                console.log("Sending to backend:", payload);
+
+                const response = await fetch(`${backendApiUrlBase}/api/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: query }),
+                    body: JSON.stringify(payload),
                 });
 
                 if (!response.ok) {
@@ -273,186 +179,171 @@
                 }
 
                 const data = await response.json();
-                currentAnswerForFeedback = data.answer; // Store for feedback context
-                addMessageToChat('ai', data.answer, currentChatId);
+                displayMessageOnUI('ai', data.answer, currentThreadId, query); // Pass user query for feedback context
 
             } catch (error) {
                 console.error('Error fetching answer:', error);
-                addMessageToChat('ai', `System Error: ${error.message}. Please check connection or try again.`, currentChatId);
+                displayMessageOnUI('ai', `System Error: ${error.message}. Please check connection or try again.`, currentThreadId);
             } finally {
-                userInput.disabled = false;
-                sendBtn.disabled = false;
-                sendBtn.innerHTML = 'Send <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
-                userInput.focus();
+                userInputEl.disabled = false;
+                sendBtnEl.disabled = false;
+                sendBtnEl.innerHTML = originalSendBtnHtml;
+                userInputEl.focus();
+                updateChatHistoryUI(); // Update history in case this was the first message of a new chat
             }
         }
 
-        async function handleFeedback(isCorrect, aiResponseText, userQueryText, buttonsId) {
+        async function handleFeedback(isCorrect, aiResponseText, userQueryText, feedbackDivId) {
             const feedbackStatus = isCorrect ? "correct" : "incorrect";
-            
-            // Disable buttons to prevent multiple submissions
-            const feedbackButtonsContainer = document.getElementById(buttonsId);
+            const feedbackButtonsContainer = document.getElementById(feedbackDivId);
             if (!feedbackButtonsContainer) return;
 
             const buttons = feedbackButtonsContainer.querySelectorAll('button');
             buttons.forEach(btn => btn.disabled = true);
-            if (isCorrect) {
-                feedbackButtonsContainer.querySelector('button:nth-child(1)').classList.add('selected');
-            } else {
-                feedbackButtonsContainer.querySelector('button:nth-child(2)').classList.add('selected');
-            }
-
-
-            // Find the message in the chats data structure to mark feedback as given
-            if (currentChatId && chats[currentChatId]) {
-                const messageIndex = chats[currentChatId].findIndex(msg => msg.text === aiResponseText && msg.sender === 'ai');
-                if (messageIndex !== -1) {
-                    chats[currentChatId][messageIndex].feedbackGiven = feedbackStatus;
-                }
+            const targetButton = isCorrect ? buttons[0] : buttons[1];
+            targetButton.classList.add('selected');
+            
+            // Mark feedback as given in displayedChats for persistence on UI if chat is re-rendered
+            if (currentThreadId && displayedChats[currentThreadId]) {
+                const messageId = feedbackDivId.replace('feedback-', '');
+                const msgIndex = displayedChats[currentThreadId].findIndex(m => m.id === messageId);
+                if (msgIndex !== -1) displayedChats[currentThreadId][msgIndex].feedbackGiven = feedbackStatus;
             }
 
             try {
-                const response = await fetch(`${backendApiUrl}/api/log_feedback`, {
+                const response = await fetch(`${backendApiUrlBase}/api/log_feedback`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        question: userQueryText, // Use the actual user query that led to this AI response
+                        question: userQueryText,
                         answer: aiResponseText,
-                        feedback: feedbackStatus
+                        feedback: feedbackStatus,
+                        thread_id: currentThreadId // Optionally send thread_id with feedback
                     }),
                 });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`Feedback API Error ${response.status}: ${errorData.error || response.statusText}`);
-                }
-                console.log(`Feedback (${feedbackStatus}) submitted for: Q: ${userQueryText} A: ${aiResponseText}`);
-                // Optionally add a small confirmation message near the buttons
-                const confirmation = document.createElement('span');
-                confirmation.textContent = ' Thanks!';
-                confirmation.classList.add('text-xs', 'text-gray-400', 'ml-2');
-                feedbackButtonsContainer.appendChild(confirmation);
+                if (!response.ok) throw new Error(`Feedback API Error ${response.status}`);
+                
+                const confirmation = feedbackButtonsContainer.querySelector('.feedback-confirmation');
+                if (confirmation) confirmation.remove(); // Remove old one if exists
+                const newConfirmation = document.createElement('span');
+                newConfirmation.textContent = ' Thanks!';
+                newConfirmation.classList.add('text-xs', 'text-gray-400', 'ml-1', 'feedback-confirmation');
+                feedbackButtonsContainer.appendChild(newConfirmation);
 
             } catch (error) {
                 console.error('Error submitting feedback:', error);
-                 buttons.forEach(btn => btn.disabled = false); // Re-enable buttons on error
-                 if (isCorrect) {
-                    feedbackButtonsContainer.querySelector('button:nth-child(1)').classList.remove('selected');
-                } else {
-                    feedbackButtonsContainer.querySelector('button:nth-child(2)').classList.remove('selected');
-                }
-                // Optionally show an error message to the user
+                buttons.forEach(btn => btn.disabled = false); // Re-enable on error
+                targetButton.classList.remove('selected');
             }
         }
-
+        
         function updateChatHistoryUI() {
-            chatHistory.innerHTML = ''; // Clear existing history items
-            const chatIds = Object.keys(chats);
+            chatHistoryEl.innerHTML = ''; 
+            const placeholder = chatHistoryEl.querySelector('.history-placeholder');
+            if(placeholder) placeholder.remove();
 
-            if (chatIds.length === 0) {
-                 chatHistory.innerHTML = '<p class="text-gray-500 text-sm">No chats yet.</p>';
+            const threadIds = Object.keys(displayedChats).filter(id => displayedChats[id] && displayedChats[id].length > 0);
+            
+            if (threadIds.length === 0) {
+                 chatHistoryEl.innerHTML = '<p class="text-gray-500 text-sm history-placeholder">No chats yet.</p>';
                  return;
             }
+            // Sort by most recent (assuming threadId is like 'chat-timestamp')
+            threadIds.sort((a, b) => parseInt(b.split('-')[1]) - parseInt(a.split('-')[1]));
 
-            chatIds.sort((a, b) => parseInt(b.substring(5)) - parseInt(a.substring(5))); // Sort by newest first
 
-            chatIds.forEach(chatId => {
-                const firstUserMessage = chats[chatId].find(msg => msg.sender === 'user');
-                const historyText = firstUserMessage ? firstUserMessage.text.substring(0, 25) + (firstUserMessage.text.length > 25 ? '...' : '') : 'New Chat';
+            threadIds.forEach(threadId => {
+                const firstUserMessage = displayedChats[threadId].find(msg => msg.sender === 'user');
+                const historyText = firstUserMessage ? firstUserMessage.text.substring(0, 22) + (firstUserMessage.text.length > 22 ? '...' : '') : 'Chat';
                 
                 const historyItem = document.createElement('div');
                 historyItem.classList.add('history-item');
                 historyItem.textContent = historyText;
-                historyItem.dataset.chatId = chatId;
-                if (chatId === currentChatId) {
+                historyItem.dataset.threadId = threadId;
+                if (threadId === currentThreadId) {
                     historyItem.classList.add('active');
                 }
-                historyItem.onclick = () => loadChat(chatId);
-                chatHistory.appendChild(historyItem);
+                historyItem.onclick = () => loadChat(threadId);
+                chatHistoryEl.appendChild(historyItem);
             });
         }
-        
-        function renderChatMessages(chatId) {
-            chatMessages.innerHTML = ''; // Clear current messages
-            const messages = chats[chatId] || [];
-            if (messages.length === 0) {
-                 chatMessages.innerHTML = `<div class="flex justify-center items-center h-full">
+
+        function renderChatMessagesForThread(threadId) {
+            chatMessagesEl.innerHTML = ''; // Clear current messages
+            const messagesToDisplay = displayedChats[threadId] || [];
+
+            if (messagesToDisplay.length === 0) {
+                chatMessagesEl.innerHTML = `<div class="flex justify-center items-center h-full">
                     <div class="text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" />
-                        </svg>
+                        <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" /></svg>
                         <h2 class="mt-2 text-lg font-medium text-gray-400">R.A.G. Terminal</h2>
-                        <p class="mt-1 text-sm text-gray-500">Continue your conversation or start a new one.</p>
+                        <p class="mt-1 text-sm text-gray-500">Ask a question to start the conversation!</p>
                     </div>
                 </div>`;
                 return;
             }
 
-            messages.forEach(msg => {
-                const bubbleElement = createMessageBubble(msg.sender, msg.text, msg.id);
-                chatMessages.appendChild(bubbleElement);
-                // Re-apply feedback status if it exists
+            messagesToDisplay.forEach(msg => {
+                const bubbleElement = createMessageBubbleDOM(msg.sender, msg.text, msg.id);
+                chatMessagesEl.appendChild(bubbleElement);
                 if (msg.sender === 'ai' && msg.feedbackGiven) {
                     const feedbackButtonsContainer = document.getElementById(`feedback-${msg.id}`);
                     if (feedbackButtonsContainer) {
                         const buttons = feedbackButtonsContainer.querySelectorAll('button');
                         buttons.forEach(btn => btn.disabled = true);
-                        if (msg.feedbackGiven === 'correct') {
-                             feedbackButtonsContainer.querySelector('button:nth-child(1)').classList.add('selected');
-                        } else {
-                             feedbackButtonsContainer.querySelector('button:nth-child(2)').classList.add('selected');
-                        }
+                        const targetButton = msg.feedbackGiven === 'correct' ? buttons[0] : buttons[1];
+                        targetButton.classList.add('selected');
                         const confirmation = document.createElement('span');
                         confirmation.textContent = ' Thanks!';
-                        confirmation.classList.add('text-xs', 'text-gray-400', 'ml-2');
+                        confirmation.classList.add('text-xs', 'text-gray-400', 'ml-1', 'feedback-confirmation');
                         feedbackButtonsContainer.appendChild(confirmation);
                     }
                 }
             });
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
         }
 
-        function setActiveHistoryItem(chatId) {
+        function setActiveHistoryItem(threadId) {
             document.querySelectorAll('#chatHistory .history-item').forEach(item => {
                 item.classList.remove('active');
-                if (item.dataset.chatId === chatId) {
+                if (item.dataset.threadId === threadId) {
                     item.classList.add('active');
                 }
             });
         }
-
-        function loadChat(chatId) {
-            currentChatId = chatId;
-            renderChatMessages(chatId);
-            setActiveHistoryItem(chatId);
-            userInput.focus();
+        
+        function loadChat(threadId) {
+            console.log("Loading chat:", threadId);
+            currentThreadId = threadId;
+            renderChatMessagesForThread(threadId);
+            setActiveHistoryItem(threadId);
+            userInputEl.focus();
         }
 
         function startNewChat() {
-            const newId = `chat-${Date.now()}`;
-            currentChatId = newId;
-            chats[currentChatId] = []; // Initialize with an empty array of messages
-            renderChatMessages(currentChatId); // This will show the placeholder
-            updateChatHistoryUI();
-            setActiveHistoryItem(currentChatId);
-            userInput.value = "";
-            userInput.focus();
-             // Clear the "No chats yet" message if it exists
-            const noChatsP = chatHistory.querySelector('p.text-gray-500');
-            if (noChatsP && Object.keys(chats).length > 0) noChatsP.remove();
+            const newId = generateUUID();
+            console.log("Starting new chat:", newId);
+            currentThreadId = newId;
+            displayedChats[currentThreadId] = []; 
+            renderChatMessagesForThread(currentThreadId); 
+            updateChatHistoryUI(); 
+            setActiveHistoryItem(currentThreadId);
+            userInputEl.value = "";
+            userInputEl.focus();
         }
 
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (e) => {
+        sendBtnEl.addEventListener('click', handleSend);
+        userInputEl.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // Prevent new line on Enter
+                e.preventDefault(); 
                 handleSend();
             }
         });
-        newChatBtn.addEventListener('click', startNewChat);
+        newChatBtnEl.addEventListener('click', startNewChat);
 
-        // Initialize
-        initializeChat();
+        // Initial load
+        startNewChat(); // Start with a fresh chat on page load
+        updateChatHistoryUI(); // Initial render of history (will show "No chats yet")
 
     </script>
 </body>
