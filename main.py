@@ -1,5 +1,6 @@
 # main.py (Conversational FINAL - for all-mpnet-base-v2 model)
 import sys
+import logging
 print("--- main.py (CONVERSATIONAL FINAL) IMPORTING ---"); sys.stdout.flush()
 
 from typing import List, Optional, Annotated, TypedDict
@@ -30,7 +31,7 @@ except ImportError as e:
     embeddings_model = None
     qdrant_collection_name = "allocations_docs" # Fallback, should match set_env.py
 except Exception as e:
-    print(f"--- main.py (CONVERSATIONAL FINAL) An unexpected error during imports from set_env: {e}"); sys.stdout.flush()
+    logging.error(f"An unexpected error during imports from set_env: {e}", exc_info=True)
     llm = None
     vector_store = None
     embeddings_model = None
