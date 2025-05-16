@@ -43,13 +43,20 @@
         </div>
         <div class="mt-auto text-center text-xs text-gray-500">
             <p>&copy; 2025 Ryo Corp.</p>
-            <p>Conversational Module v2.1</p>
+            <p>Conversational Module v2.2 (LangSmith Feedback)</p>
         </div>
     </aside>
 
     <main class="flex-grow flex flex-col h-screen bg-[#1e1e2d]">
         <div id="chatMessages" class="flex-grow p-6 space-y-2 overflow-y-auto bg-[#2a2a3a] rounded-t-lg">
+            <div class="flex justify-center items-center h-full">
+                <div class="text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" /></svg>
+                    <h2 class="mt-2 text-lg font-medium text-gray-400">R.A.G. Terminal</h2>
+                    <p class="mt-1 text-sm text-gray-500">Ask a question to start the conversation!</p>
+                </div>
             </div>
+        </div>
         <div class="bg-[#252532] p-4 border-t border-gray-700 input-shadow">
             <div class="flex items-center space-x-3">
                 <input type="text" id="userInput" placeholder="Enter your query..." class="flex-grow bg-[#3a3f47] text-gray-200 placeholder-gray-500 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none shadow-sm transition duration-150 ease-in-out" autocomplete="off">
@@ -68,27 +75,27 @@
         const chatHistoryEl = document.getElementById('chatHistory');
         const newChatBtnEl = document.getElementById('newChatBtn');
 
-        const backendApiUrlBase = "http://ec2-18-219-255-192.us-east-2.compute.amazonaws.com"; // CHANGE THIS TO YOUR EC2 URL
+        const backendApiUrlBase = "http://your-ec2-public-ip-here"; // CHANGE THIS TO YOUR EC2 PUBLIC IP OR DNS
 
         let currentThreadId = null;
-        // Client-side store for display and simple history navigation.
-        // Backend checkpointer is the source of truth for LangGraph's memory.
-        let displayedChats = {}; // { threadId: [{sender, text, id (for feedback)}, ...] }
+        let displayedChats = {}; // { threadId: [{sender, text, id (for feedback), runId (for LangSmith)}, ...] }
 
-        function generateUUID() { // Simple UUID for thread_id
+        function generateUUID() {
             return 'chat-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10);
         }
 
         function createMessageBubbleDOM(sender, text, messageId) {
             const messageWrapper = document.createElement('div');
-            messageWrapper.classList.add('flex', 'items-end', 'w-full', 'mb-3'); // Increased margin-bottom
+            messageWrapper.classList.add('flex', 'items-end', 'w-full', 'mb-3');
 
             const avatar = document.createElement('div');
             avatar.classList.add('avatar');
-            
+
             const bubble = document.createElement('div');
-            bubble.classList.add('chat-bubble', 'max-w-[75%]', 'lg:max-w-[70%]'); // Tailwind max-width
-            bubble.textContent = text; // Text content handles newlines automatically
+            bubble.classList.add('chat-bubble', 'max-w-[75%]', 'lg:max-w-[70%]');
+            // To render newlines correctly from backend
+            bubble.innerHTML = text.replace(/\n/g, '<br>');
+
 
             if (sender === 'user') {
                 avatar.classList.add('avatar-user');
@@ -102,39 +109,59 @@
                 avatar.textContent = 'AI';
                 bubble.classList.add('chat-bubble-ai');
                 messageWrapper.classList.add('justify-start');
-                messageWrapper.appendChild(avatar);
-                messageWrapper.appendChild(bubble);
+
+                const aiMessageContentDiv = document.createElement('div'); // Wrapper for bubble and feedback
+                aiMessageContentDiv.appendChild(bubble);
+
 
                 const feedbackDivId = `feedback-${messageId}`;
                 const feedbackDiv = document.createElement('div');
-                feedbackDiv.classList.add('feedback-buttons', 'mt-1.5', 'ml-12', 'flex', 'space-x-2'); // Indent and style feedback
+                feedbackDiv.classList.add('feedback-buttons', 'mt-1.5', 'ml-12', 'flex', 'space-x-2'); // Adjusted margin
                 feedbackDiv.id = feedbackDivId;
 
                 const correctBtn = document.createElement('button');
                 correctBtn.textContent = '👍';
                 correctBtn.title = 'Correct';
-                correctBtn.onclick = () => handleFeedback(true, text, displayedChats[currentThreadId].find(m => m.id === messageId)?.userQuery || "Unknown query", feedbackDivId);
+                // Get the specific runId for this AI message when creating the onclick handler
+                correctBtn.onclick = () => {
+                    const msgData = displayedChats[currentThreadId]?.find(m => m.id === messageId);
+                    handleFeedback(true, text, msgData?.userQuery || "Unknown query", feedbackDivId, msgData?.runId);
+                };
+
 
                 const incorrectBtn = document.createElement('button');
                 incorrectBtn.textContent = '👎';
                 incorrectBtn.title = 'Incorrect';
-                incorrectBtn.onclick = () => handleFeedback(false, text, displayedChats[currentThreadId].find(m => m.id === messageId)?.userQuery || "Unknown query", feedbackDivId);
+                incorrectBtn.onclick = () => {
+                    const msgData = displayedChats[currentThreadId]?.find(m => m.id === messageId);
+                    handleFeedback(false, text, msgData?.userQuery || "Unknown query", feedbackDivId, msgData?.runId);
+                };
 
                 feedbackDiv.appendChild(correctBtn);
                 feedbackDiv.appendChild(incorrectBtn);
-                messageWrapper.appendChild(feedbackDiv); // Append feedback next to the bubble (adjust if needed)
+                aiMessageContentDiv.appendChild(feedbackDiv);
+
+                messageWrapper.appendChild(avatar);
+                messageWrapper.appendChild(aiMessageContentDiv);
             }
             return messageWrapper;
         }
-        
-        function displayMessageOnUI(sender, text, threadIdToUpdate, userQueryForFeedback = null) {
+
+        function displayMessageOnUI(sender, text, threadIdToUpdate, userQueryForFeedback = null, runIdForFeedback = null) {
             if (!displayedChats[threadIdToUpdate]) {
                 displayedChats[threadIdToUpdate] = [];
             }
             const messageId = `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-            const messageData = { sender, text, id: messageId };
-            if (sender === 'ai' && userQueryForFeedback) {
-                messageData.userQuery = userQueryForFeedback; // Store the user query that led to this AI answer
+            const messageData = { sender, text, id: messageId, runId: null }; // Initialize runId
+
+            if (sender === 'ai') {
+                if (userQueryForFeedback) {
+                    messageData.userQuery = userQueryForFeedback;
+                }
+                if (runIdForFeedback) { // Store the run_id if provided for AI messages
+                    messageData.runId = runIdForFeedback;
+                    console.log(`Stored run_id ${runIdForFeedback} for AI message ${messageId}`);
+                }
             }
             displayedChats[threadIdToUpdate].push(messageData);
 
@@ -152,6 +179,8 @@
             const query = userInputEl.value.trim();
             if (query === "" || !currentThreadId) return;
 
+            const userQueryForThisTurn = query; // Capture query before it's cleared
+
             displayMessageOnUI('user', query, currentThreadId);
             userInputEl.value = "";
             userInputEl.disabled = true;
@@ -163,7 +192,6 @@
                 const payload = {
                     question: query,
                     thread_id: currentThreadId
-                    // Backend will use the checkpointer to get history for this thread_id
                 };
                 console.log("Sending to backend:", payload);
 
@@ -179,35 +207,41 @@
                 }
 
                 const data = await response.json();
-                displayMessageOnUI('ai', data.answer, currentThreadId, query); // Pass user query for feedback context
+                // Pass userQueryForThisTurn and the received data.run_id to displayMessageOnUI
+                displayMessageOnUI('ai', data.answer, currentThreadId, userQueryForThisTurn, data.run_id);
 
             } catch (error) {
                 console.error('Error fetching answer:', error);
-                displayMessageOnUI('ai', `System Error: ${error.message}. Please check connection or try again.`, currentThreadId);
+                displayMessageOnUI('ai', `System Error: ${error.message}. Please check connection or try again.`, currentThreadId, userQueryForThisTurn, null);
             } finally {
                 userInputEl.disabled = false;
                 sendBtnEl.disabled = false;
                 sendBtnEl.innerHTML = originalSendBtnHtml;
                 userInputEl.focus();
-                updateChatHistoryUI(); // Update history in case this was the first message of a new chat
+                updateChatHistoryUI();
             }
         }
 
-        async function handleFeedback(isCorrect, aiResponseText, userQueryText, feedbackDivId) {
+        async function handleFeedback(isCorrect, aiResponseText, userQueryText, feedbackDivId, associatedRunId) {
             const feedbackStatus = isCorrect ? "correct" : "incorrect";
             const feedbackButtonsContainer = document.getElementById(feedbackDivId);
             if (!feedbackButtonsContainer) return;
 
             const buttons = feedbackButtonsContainer.querySelectorAll('button');
-            buttons.forEach(btn => btn.disabled = true);
+            buttons.forEach(btn => btn.disabled = true); // Disable both
             const targetButton = isCorrect ? buttons[0] : buttons[1];
-            targetButton.classList.add('selected');
-            
-            // Mark feedback as given in displayedChats for persistence on UI if chat is re-rendered
+            targetButton.classList.add('selected'); // Mark selected
+
             if (currentThreadId && displayedChats[currentThreadId]) {
                 const messageId = feedbackDivId.replace('feedback-', '');
                 const msgIndex = displayedChats[currentThreadId].findIndex(m => m.id === messageId);
                 if (msgIndex !== -1) displayedChats[currentThreadId][msgIndex].feedbackGiven = feedbackStatus;
+            }
+
+            console.log(`Sending feedback for run_id: ${associatedRunId}, status: ${feedbackStatus}`);
+            if (!associatedRunId) {
+                console.warn("No run_id associated with this message for feedback.");
+                // Decide if you still want to send feedback without run_id or show an error/message
             }
 
             try {
@@ -218,13 +252,14 @@
                         question: userQueryText,
                         answer: aiResponseText,
                         feedback: feedbackStatus,
-                        thread_id: currentThreadId // Optionally send thread_id with feedback
+                        thread_id: currentThreadId,
+                        run_id: associatedRunId // Send the associated run_id
                     }),
                 });
                 if (!response.ok) throw new Error(`Feedback API Error ${response.status}`);
-                
+
                 const confirmation = feedbackButtonsContainer.querySelector('.feedback-confirmation');
-                if (confirmation) confirmation.remove(); // Remove old one if exists
+                if (confirmation) confirmation.remove();
                 const newConfirmation = document.createElement('span');
                 newConfirmation.textContent = ' Thanks!';
                 newConfirmation.classList.add('text-xs', 'text-gray-400', 'ml-1', 'feedback-confirmation');
@@ -234,28 +269,27 @@
                 console.error('Error submitting feedback:', error);
                 buttons.forEach(btn => btn.disabled = false); // Re-enable on error
                 targetButton.classList.remove('selected');
+                // Optionally show an error message to the user here
             }
         }
-        
+
         function updateChatHistoryUI() {
-            chatHistoryEl.innerHTML = ''; 
+            chatHistoryEl.innerHTML = '';
             const placeholder = chatHistoryEl.querySelector('.history-placeholder');
             if(placeholder) placeholder.remove();
 
             const threadIds = Object.keys(displayedChats).filter(id => displayedChats[id] && displayedChats[id].length > 0);
-            
+
             if (threadIds.length === 0) {
                  chatHistoryEl.innerHTML = '<p class="text-gray-500 text-sm history-placeholder">No chats yet.</p>';
                  return;
             }
-            // Sort by most recent (assuming threadId is like 'chat-timestamp')
             threadIds.sort((a, b) => parseInt(b.split('-')[1]) - parseInt(a.split('-')[1]));
-
 
             threadIds.forEach(threadId => {
                 const firstUserMessage = displayedChats[threadId].find(msg => msg.sender === 'user');
-                const historyText = firstUserMessage ? firstUserMessage.text.substring(0, 22) + (firstUserMessage.text.length > 22 ? '...' : '') : 'Chat';
-                
+                const historyText = firstUserMessage ? firstUserMessage.text.substring(0, 22) + (firstUserMessage.text.length > 22 ? '...' : '') : `Chat (${threadId.substring(0,5)}...)`;
+
                 const historyItem = document.createElement('div');
                 historyItem.classList.add('history-item');
                 historyItem.textContent = historyText;
@@ -269,7 +303,7 @@
         }
 
         function renderChatMessagesForThread(threadId) {
-            chatMessagesEl.innerHTML = ''; // Clear current messages
+            chatMessagesEl.innerHTML = '';
             const messagesToDisplay = displayedChats[threadId] || [];
 
             if (messagesToDisplay.length === 0) {
@@ -286,17 +320,20 @@
             messagesToDisplay.forEach(msg => {
                 const bubbleElement = createMessageBubbleDOM(msg.sender, msg.text, msg.id);
                 chatMessagesEl.appendChild(bubbleElement);
-                if (msg.sender === 'ai' && msg.feedbackGiven) {
+                if (msg.sender === 'ai' && msg.feedbackGiven) { // Re-apply feedback state if already given
                     const feedbackButtonsContainer = document.getElementById(`feedback-${msg.id}`);
                     if (feedbackButtonsContainer) {
                         const buttons = feedbackButtonsContainer.querySelectorAll('button');
                         buttons.forEach(btn => btn.disabled = true);
                         const targetButton = msg.feedbackGiven === 'correct' ? buttons[0] : buttons[1];
-                        targetButton.classList.add('selected');
-                        const confirmation = document.createElement('span');
-                        confirmation.textContent = ' Thanks!';
-                        confirmation.classList.add('text-xs', 'text-gray-400', 'ml-1', 'feedback-confirmation');
-                        feedbackButtonsContainer.appendChild(confirmation);
+                        if(targetButton) targetButton.classList.add('selected'); // Check if targetButton exists
+                        
+                        const confirmation = feedbackButtonsContainer.querySelector('.feedback-confirmation');
+                        if (confirmation) confirmation.remove(); // Remove old one
+                        const newConfirmation = document.createElement('span');
+                        newConfirmation.textContent = ' Thanks!';
+                        newConfirmation.classList.add('text-xs', 'text-gray-400', 'ml-1', 'feedback-confirmation');
+                        feedbackButtonsContainer.appendChild(newConfirmation);
                     }
                 }
             });
@@ -311,7 +348,7 @@
                 }
             });
         }
-        
+
         function loadChat(threadId) {
             console.log("Loading chat:", threadId);
             currentThreadId = threadId;
@@ -324,9 +361,9 @@
             const newId = generateUUID();
             console.log("Starting new chat:", newId);
             currentThreadId = newId;
-            displayedChats[currentThreadId] = []; 
-            renderChatMessagesForThread(currentThreadId); 
-            updateChatHistoryUI(); 
+            displayedChats[currentThreadId] = [];
+            renderChatMessagesForThread(currentThreadId);
+            updateChatHistoryUI();
             setActiveHistoryItem(currentThreadId);
             userInputEl.value = "";
             userInputEl.focus();
@@ -335,15 +372,15 @@
         sendBtnEl.addEventListener('click', handleSend);
         userInputEl.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); 
+                e.preventDefault();
                 handleSend();
             }
         });
         newChatBtnEl.addEventListener('click', startNewChat);
 
         // Initial load
-        startNewChat(); // Start with a fresh chat on page load
-        updateChatHistoryUI(); // Initial render of history (will show "No chats yet")
+        startNewChat();
+        // updateChatHistoryUI(); // updateChatHistoryUI is called within startNewChat effectively
 
     </script>
 </body>
