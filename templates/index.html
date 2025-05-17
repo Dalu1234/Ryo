@@ -75,7 +75,7 @@
         const chatHistoryEl = document.getElementById('chatHistory');
         const newChatBtnEl = document.getElementById('newChatBtn');
 
-        const backendApiUrlBase = "https://ec2-18-223-206-165.us-east-2.compute.amazonaws.com/"; // CHANGE THIS TO YOUR EC2 PUBLIC IP OR DNS
+        const backendApiUrlBase = "http://ec2-18-223-206-165.us-east-2.compute.amazonaws.com/"; // CHANGE THIS TO YOUR EC2 PUBLIC IP OR DNS
 
         let currentThreadId = null;
         let displayedChats = {}; // { threadId: [{sender, text, id (for feedback), runId (for LangSmith)}, ...] }
