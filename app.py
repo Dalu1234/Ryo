@@ -1,6 +1,6 @@
-# app.py (v2.1 - LangSmith Feedback Integration)
-import sys
-print("--- app.py (v2.1) IMPORTING ---"); sys.stdout.flush() # Make sure your running version reflects this
+# app.py
+print("--- app.py DEBUG: TOP OF app.py ---") # New
+import sys # For flushing output if needed
 import logging
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
@@ -9,34 +9,53 @@ import datetime
 import uuid
 
 from langchain_core.messages import HumanMessage, AIMessage
-from langsmith import Client as LangSmithClient # Import LangSmith client
-# from langchain_core.tracers.context import tracing_v2_enabled # May not be needed if run_id is in metadata
+from langsmith import Client as LangSmithClient
+
+print("--- app.py DEBUG: Imports in app.py done ---") # New
 
 logger = logging.getLogger(__name__)
+print(f"--- app.py DEBUG: Logger for app.py is: {logger.name} ---") # New
 
+rag_graph = None # Initialize to None
 try:
-    from main import graph as rag_graph
+    print("--- app.py DEBUG: Attempting to import rag_graph from main ---") # New
+    from main import graph as rag_graph_imported
+    rag_graph = rag_graph_imported # Assign to the global rag_graph
+    print(f"--- app.py DEBUG: rag_graph imported. Type: {type(rag_graph)}. Is None: {rag_graph is None}") # New
     if rag_graph is None:
-         logger.error("--- app.py (v2.1) ERROR: RAG graph is None. Check main.py and set_env.py for errors.")
-    logger.info("--- app.py (v2.1): Successfully imported RAG graph and related components.")
+        print("--- app.py DEBUG: RAG graph is None after import.") # New (changed from logger)
+        # logger.error("--- app.py (v2.1) ERROR: RAG graph is None. Check main.py and set_env.py for errors.")
+    else:
+        print("--- app.py DEBUG: RAG graph is not None. Successfully imported.") # New
+    # logger.info("--- app.py (v2.1): Successfully imported RAG graph and related components.") # This was the original line
+    print("--- app.py DEBUG: Past rag_graph import and check block ---") # New
+
 except ImportError as e:
+    print(f"--- app.py DEBUG: ImportError during rag_graph import: {e}") # New
     logger.error(f"--- app.py (v2.1) ERROR importing RAG graph or components: {e}", exc_info=True)
-    rag_graph = None
 except Exception as e:
+    print(f"--- app.py DEBUG: Exception during rag_graph import block: {e}") # New
     logger.error(f"--- app.py (v2.1) An unexpected error occurred during import: {e}", exc_info=True)
-    rag_graph = None
 
+print("--- app.py DEBUG: Initializing Flask app object ---") # New
 app = Flask(__name__)
+print("--- app.py DEBUG: Flask app object CREATED ---") # New
 CORS(app)
+print("--- app.py DEBUG: CORS initialized ---") # New
 
-# Initialize LangSmith client (it will use environment variables)
+langsmith_client = None # Initialize
 try:
+    print("--- app.py DEBUG: Initializing LangSmith client ---") # New
     langsmith_client = LangSmithClient()
-    logger.info("--- app.py (v2.1): LangSmith client initialized.")
+    print("--- app.py DEBUG: LangSmith client initialized successfully ---") # New
+    # logger.info("--- app.py (v2.1): LangSmith client initialized.")
 except Exception as e:
-    logger.error(f"--- app.py (v2.1): Failed to initialize LangSmith client: {e}. Feedback to LangSmith might fail.", exc_info=True)
+    print(f"--- app.py DEBUG: FAILED to initialize LangSmith client: {e}") # New
+    # logger.error(f"--- app.py (v2.1): Failed to initialize LangSmith client: {e}. Feedback to LangSmith might fail.", exc_info=True)
     langsmith_client = None
 
+print("--- app.py DEBUG: End of global initializations in app.py ---") # New
+sys.stdout.flush() # Try to force output
 
 @app.route('/api/ask', methods=['POST'])
 def ask_rag_conversational():
