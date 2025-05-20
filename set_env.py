@@ -1,8 +1,15 @@
-# set_env.py (v4.6 - Fix pickling error and print statements)
+# set_env.py (v4.6 - Fix pickling and print statements)
 import sys
+from dotenv import load_dotenv # <--- ADD THIS IMPORT
+import os # <--- Make sure os is imported before load_dotenv if you specify a path, but usually not an issue for default .env
+
+# Load environment variables from .env file in the current directory (/app)
+# This should be one of the first things you do.
+load_dotenv() # <--- ADD THIS LINE
+
 print("--- EXECUTING set_env.py (v4.6) - Fixes for pickling and print ---"); sys.stdout.flush()
-import os
-import logging # Added
+# import os # Already imported above
+import logging
 from uuid import uuid4
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
