@@ -142,54 +142,84 @@ def log_feedback_to_langsmith():
     question = data.get('question')
     answer = data.get('answer')
     feedback_status = data.get('feedback') # "correct" or "incorrect"
-    run_id = data.get('run_id') # The run_id for the LLM call that produced the answer
+    run_id_from_frontend = data.get('run_id') # Renamed for clarity, this is like "run--<UUID>-0"
     # thread_id = data.get('thread_id') # This is good for your own logging if needed
 
     if not all([question, answer, feedback_status]):
         logger.warning(f"--- app.py (v2.1) /api/log_feedback: Invalid feedback data (missing q, a, or f): {data}")
         return jsonify({"error": "Invalid feedback. Missing 'question', 'answer', or 'feedback'."}), 400
 
-    logger.info(f"--- app.py (v2.1) FEEDBACK RECEIVED: Run ID: {run_id}, Status: {feedback_status.upper()} - Q: \"{question}\" - A: \"{answer}\""); sys.stdout.flush()
+    logger.info(f"--- app.py (v2.1) FEEDBACK RECEIVED: Original Run ID from frontend: {run_id_from_frontend}, Status: {feedback_status.upper()} - Q: \"{question}\" - A: \"{answer}\""); sys.stdout.flush()
 
     try:
-        # LangSmith feedback: score (1 for correct, 0 for incorrect) or a key
-        # Using a clear key is often better.
-        feedback_key = "user_rating" # A general key for user feedback
-        # You can use score for a simple thumbs up/down, or value for more descriptive feedback
-        score = 1.0 if feedback_status == "correct" else 0.0 # Binary score (float is also accepted)
-        # Alternatively, for more nuance, or if you have more than two states:
-        # value = feedback_status # e.g., "correct", "incorrect", "needs_improvement"
+        feedback_key = "user_rating"
+        score = 1.0 if feedback_status == "correct" else 0.0
 
-        if run_id: # IMPORTANT: Feedback is most useful when tied to a specific run
+        parsed_run_id_for_langsmith = None # Initialize to None
+
+        if run_id_from_frontend:
+            # Attempt to parse the UUID from strings like "run--<UUID>-suffix"
+            if (run_id_from_frontend.startswith("run--") or run_id_from_frontend.startswith("run-")) and run_id_from_frontend.count('-') >= 2: # Ensures there are enough hyphens for a UUID-like structure
+                parts = run_id_from_frontend.split('-')
+                # Try to find a 36-character UUID string segment or the segment after "run--"
+                if run_id_from_frontend.startswith("run--") and len(run_id_from_frontend) > 5 + 36 and run_id_from_frontend[5+36] == '-':
+                     # Assumes format like "run--[36_char_UUID]-..."
+                    uuid_candidate = run_id_from_frontend[5:5+36]
+                    parsed_run_id_for_langsmith = uuid_candidate
+                    logger.info(f"--- app.py (v2.1) /api/log_feedback: Attempting to use parsed UUID: {parsed_run_id_for_langsmith} from {run_id_from_frontend}")
+                elif run_id_from_frontend.startswith("run-") and len(run_id_from_frontend) > 4 + 36 and run_id_from_frontend[4+36] == '-':
+                    # Assumes format like "run-[36_char_UUID]-..."
+                    uuid_candidate = run_id_from_frontend[4:4+36]
+                    parsed_run_id_for_langsmith = uuid_candidate
+                    logger.info(f"--- app.py (v2.1) /api/log_feedback: Attempting to use parsed UUID: {parsed_run_id_for_langsmith} from {run_id_from_frontend}")
+                else: # Fallback for other "run-" prefixed IDs if the simple slice doesn't fit.
+                    # This part might need more robust parsing if formats vary widely.
+                    # For "run--<UUID>-0", the UUID is parts[2] + '-' + parts[3] + '-' + parts[4] + '-' + parts[5]
+                    # if split by '-', but slicing is simpler if fixed length.
+                    # For now, the slicing [5:5+36] is the primary attempt for "run--"
+                    logger.warning(f"--- app.py (v2.1) /api/log_feedback: Could not reliably parse UUID from prefixed ID '{run_id_from_frontend}' using simple slicing. Will try to use as is or let Langsmith client validate.")
+                    # If specific parsing fails, we can let Langsmith try the original run_id_from_frontend,
+                    # or ensure parsed_run_id_for_langsmith is None so it triggers the 'else' below.
+                    # For safety, if parsing is uncertain, set to None to avoid sending bad format.
+                    # However, if the prefix itself is the issue, Langsmith might handle some known prefixes.
+                    # Given the error, Langsmith wants a pure UUID.
+
+                    # Re-evaluating: the slice [5:5+36] is the most direct attempt for "run--UUID-suffix"
+                    if run_id_from_frontend.startswith("run--") and len(run_id_from_frontend) >= 5 + 36: # UUID is 36 chars
+                        parsed_run_id_for_langsmith = run_id_from_frontend[5:5+36]
+                        logger.info(f"--- app.py (v2.1) /api/log_feedback: Using general slice for 'run--' prefix: {parsed_run_id_for_langsmith}")
+                    elif run_id_from_frontend.startswith("run-") and len(run_id_from_frontend) >= 4 + 36: # UUID is 36 chars
+                        parsed_run_id_for_langsmith = run_id_from_frontend[4:4+36]
+                        logger.info(f"--- app.py (v2.1) /api/log_feedback: Using general slice for 'run-' prefix: {parsed_run_id_for_langsmith}")
+                    else:
+                        # If it's not a prefixed ID we know how to parse, maybe it's already a UUID?
+                        # Or an unhandled format. Langsmith will throw error if it's not a UUID.
+                        parsed_run_id_for_langsmith = run_id_from_frontend # Try as-is if no known prefix
+                        logger.info(f"--- app.py (v2.1) /api/log_feedback: Unrecognized run_id format, trying as is: {parsed_run_id_for_langsmith}")
+
+            else: # Not starting with "run-" or "run--"
+                # It might be a direct UUID or some other format. Let Langsmith client validate.
+                parsed_run_id_for_langsmith = run_id_from_frontend
+                logger.info(f"--- app.py (v2.1) /api/log_feedback: run_id did not start with 'run-', using as is: {parsed_run_id_for_langsmith}")
+        
+        # Check if parsing resulted in a usable ID for Langsmith
+        if parsed_run_id_for_langsmith:
             langsmith_client.create_feedback(
-                run_id=run_id,      # The ID of the trace/run (e.g., an LLM call or a chain run)
-                key=feedback_key,   # A custom key for the feedback type
-                score=score,        # Numerical score (e.g., 0 for incorrect, 1 for correct)
-                # value=feedback_status, # Alternatively, use 'value' for non-numeric or more descriptive feedback
-                comment=f"User marked as {feedback_status}. Q: {question}", # Optional: More context
-                source="user_interaction" # Optional: Indicate where the feedback came from
+                run_id=parsed_run_id_for_langsmith, # Use the parsed ID
+                key=feedback_key,
+                score=score,
+                comment=f"User marked as {feedback_status}. Q: {question}",
+                source="user_interaction"
             )
-            logger.info(f"--- app.py (v2.1) /api/log_feedback: Feedback for run_id '{run_id}' (key: {feedback_key}, score: {score}) sent to LangSmith."); sys.stdout.flush()
+            logger.info(f"--- app.py (v2.1) /api/log_feedback: Feedback for (parsed) run_id '{parsed_run_id_for_langsmith}' sent to LangSmith."); sys.stdout.flush()
             return jsonify({"message": "Feedback received and sent to LangSmith."}), 200
-        else:
-            # If no run_id, the feedback can't be directly linked to a specific trace via this API call.
-            # You could create a new "orphan" run in LangSmith just for this feedback,
-            # or log it to a different system, or just rely on your server logs.
-            logger.warning(f"--- app.py (v2.1) /api/log_feedback: No run_id provided by frontend. Feedback Q: '{question}', A: '{answer}', Status: '{feedback_status}' logged locally but not directly to a specific LangSmith trace via API.");
-            # Example of creating an "orphan" feedback event (less ideal but possible)
-            # This creates a new run of type "feedback" in LangSmith
-            # langsmith_client.create_run(
-            #     name="Orphaned User Feedback",
-            #     run_type="tool", # or "llm" or a custom type; "tool" might fit for a feedback event
-            #     inputs={"question": question, "answer": answer, "user_feedback": feedback_status},
-            #     outputs={"status": "logged_without_direct_trace_link"}
-            # )
-            return jsonify({"message": "Feedback received (no run_id from frontend, not directly linked to a LangSmith trace via API)."}), 202
+        else: # This 'else' corresponds to 'if run_id_from_frontend:' was false OR if parsing failed to produce an ID
+            logger.warning(f"--- app.py (v2.1) /api/log_feedback: No valid run_id to send. Original from frontend: '{run_id_from_frontend}'. Feedback Q: '{question}', A: '{answer}', Status: '{feedback_status}' logged locally.");
+            return jsonify({"message": "Feedback received (no valid run_id to send, not linked to LangSmith trace)."}), 202
 
     except Exception as e:
         logger.error(f"--- app.py (v2.1) /api/log_feedback: Error sending feedback to LangSmith: {e}", exc_info=True); sys.stdout.flush()
         return jsonify({"error": f"An error occurred while sending feedback to LangSmith: {e}"}), 500
-
 @app.route('/')
 def index():
     return render_template('index.html')
