@@ -109,14 +109,12 @@ def ask_rag_conversational():
                 # LangChain often stores run IDs in response_metadata of the AIMessage
                 if hasattr(last_message, 'response_metadata') and 'run_id' in last_message.response_metadata:
                     run_id_for_feedback = str(last_message.response_metadata['run_id'])
-                elif hasattr(last_message, 'id') and last_message.id: # This is the message ID, not the run ID.
-                     # If we can't get a specific run_id for the AIMessage, we might have to rely on
-                     # the LangSmith UI or more complex callback mechanisms to link feedback to the overarching graph run.
-                     # For now, we'll pass what we can to the frontend.
-                     logger.warning(f"--- app.py (v2.1) /api/ask: 'run_id' not in AIMessage.response_metadata. Using AIMessage.id ('{last_message.id}') as a potential reference if frontend needs it, but it's not the trace run_id for feedback.")
-                     # To truly get the parent run_id, a callback handler added to the graph is more robust.
-                     # For now, we'll make do. The feedback API in LangSmith is flexible.
-                     pass # run_id_for_feedback remains None or its previous value
+                    logger.info(f"--- app.py (v2.1) /api/ask: Found run_id in AIMessage.response_metadata: {run_id_for_feedback}")
+                elif hasattr(last_message, 'id') and last_message.id and last_message.id.startswith("run-"): # Check if AIMessage.id looks like a run_id
+                    run_id_for_feedback = str(last_message.id)
+                    logger.info(f"--- app.py (v2.1) /api/ask: Using AIMessage.id as run_id_for_feedback: {run_id_for_feedback}")
+                else:
+                    logger.warning(f"--- app.py (v2.1) /api/ask: Could not find a suitable run_id in AIMessage.response_metadata or AIMessage.id. AIMessage.id: {last_message.id if hasattr(last_message, 'id') else 'N/A'}")
 
         logger.info(f"--- app.py (v2.1) /api/ask: Generated answer for thread_id '{thread_id}'. Run ID for feedback (if found): {run_id_for_feedback}"); sys.stdout.flush()
         return jsonify({
