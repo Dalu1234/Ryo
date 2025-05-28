@@ -7,60 +7,150 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* R.A.G. Terminal UI Styles
+          Version: Deep Black Theme with Light Blue Accent
+        */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1e1e2d; /* Darker background for the whole page */
+            background-color: #000000;
+            color: #e0e0e0; 
         }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #2a2a3a; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: #4f4f6a; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6a6a86; }
+        ::-webkit-scrollbar { 
+            width: 8px; 
+            height: 8px; 
+        }
+        ::-webkit-scrollbar-track { 
+            background: #111111; 
+            border-radius: 10px; 
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: #333333; 
+            border-radius: 10px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: #444444; 
+        }
 
-        .chat-bubble-user { background-color: #007A5E; color: #ffffff; align-self: flex-end; max-width: 75%; }
-        .chat-bubble-ai { background-color: #3a3f47; color: #e0e0e0; align-self: flex-start; max-width: 75%; }
-        .chat-bubble { padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); word-wrap: break-word; line-height: 1.6; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 500; margin-right: 10px; margin-left: 10px; flex-shrink: 0; }
-        .avatar-user { background-color: #005C45; color: white; }
-        .avatar-ai { background-color: #4A5568; color: white; }
-        .feedback-buttons button { background-color: #4a5568; color: #e0e0e0; padding: 4px 10px; font-size: 0.8rem; border-radius: 12px; margin-left: 8px; transition: background-color 0.2s; }
-        .feedback-buttons button:hover { background-color: #5a6578; }
-        .feedback-buttons button.selected { background-color: #007A5E; color: white; cursor: not-allowed; }
-        .history-item { padding: 10px 15px; margin: 5px 0; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-item:hover { background-color: #3a3f47; }
-        .history-item.active { background-color: #4f4f6a; color: #ffffff; }
-        .input-shadow { box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        /* User chat bubble: Light blue accent */
+        .chat-bubble-user { 
+            background-color: #2563EB; /* Light Blue (Tailwind blue-600) */
+            color: #ffffff; 
+            align-self: flex-end; 
+            max-width: 75%; 
+        }
+        /* AI chat bubble: Dark grey for AI responses */
+        .chat-bubble-ai { 
+            background-color: #1A1A1A; 
+            color: #e0e0e0; 
+            align-self: flex-start; 
+            max-width: 75%;
+            border: 1px solid #2c2c2c; 
+        }
+        .chat-bubble { 
+            padding: 10px 15px; 
+            border-radius: 18px; 
+            margin-bottom: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+            word-wrap: break-word; 
+            line-height: 1.6; 
+        }
+
+        /* Avatars */
+        .avatar { 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 500; 
+            margin-right: 10px; 
+            margin-left: 10px; 
+            flex-shrink: 0; 
+        }
+        .avatar-user { 
+            background-color: #1D4ED8; /* Darker Blue (Tailwind blue-700) */
+            color: white; 
+        }
+        .avatar-ai { 
+            background-color: #2C2C2C; 
+            color: white; 
+        }
+
+        /* Feedback buttons */
+        .feedback-buttons button { 
+            background-color: #2C2C2C; 
+            color: #c0c0c0; 
+            padding: 4px 10px; 
+            font-size: 0.8rem; 
+            border-radius: 12px; 
+            margin-left: 8px; 
+            transition: background-color 0.2s; 
+        }
+        .feedback-buttons button:hover { 
+            background-color: #3C3C3C; 
+        }
+        .feedback-buttons button.selected { 
+            background-color: #2563EB; /* Light Blue for selected feedback */
+            color: white; 
+            cursor: not-allowed; 
+        }
+
+        /* History panel */
+        .history-item { 
+            padding: 10px 15px; 
+            margin: 5px 0; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: background-color 0.2s; 
+            color: #b0b0b0; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
+        .history-item:hover { 
+            background-color: #1A1A1A; 
+        }
+        .history-item.active { 
+            background-color: #2C2C2C; 
+            color: #ffffff; 
+        }
+
+        .input-shadow { 
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
 
-    <aside class="w-1/4 md:w-1/5 lg:w-1/6 bg-[#252532] p-4 flex flex-col space-y-3 border-r border-gray-700 overflow-y-auto">
-        <button id="newChatBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+    <aside class="w-1/4 md:w-1/5 lg:w-1/6 bg-[#0A0A0A] p-4 flex flex-col space-y-3 border-r border-gray-800 overflow-y-auto">
+        <button id="newChatBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
             + New Chat
         </button>
-        <h2 class="text-xs text-gray-400 uppercase tracking-wider font-semibold pt-2">History</h2>
+        <h2 class="text-xs text-gray-500 uppercase tracking-wider font-semibold pt-2">History</h2>
         <div id="chatHistory" class="flex-grow space-y-1">
-            <p class="text-gray-500 text-sm history-placeholder">No chats yet.</p>
+            <p class="text-gray-600 text-sm history-placeholder">No chats yet.</p>
         </div>
-        <div class="mt-auto text-center text-xs text-gray-500">
+        <div class="mt-auto text-center text-xs text-gray-600">
             <p>&copy; 2025 Ryo Corp.</p>
-            <p>Conversational Module v2.2 (LangSmith Feedback)</p>
+            <p>Conversational Module v2.2 (LangSmith Feedback)Ask questions about the allocations manual</p>
         </div>
     </aside>
 
-    <main class="flex-grow flex flex-col h-screen bg-[#1e1e2d]">
-        <div id="chatMessages" class="flex-grow p-6 space-y-2 overflow-y-auto bg-[#2a2a3a] rounded-t-lg">
+    <main class="flex-grow flex flex-col h-screen bg-[#000000]">
+        <div id="chatMessages" class="flex-grow p-6 space-y-2 overflow-y-auto bg-[#080808] rounded-t-lg">
             <div class="flex justify-center items-center h-full">
                 <div class="text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" /></svg>
-                    <h2 class="mt-2 text-lg font-medium text-gray-400">R.A.G. Terminal</h2>
-                    <p class="mt-1 text-sm text-gray-500">Ask a question to start the conversation!</p>
+                    <svg class="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" /></svg>
+                    <h2 class="mt-2 text-lg font-medium text-gray-500">R.A.G. Terminal</h2>
+                    <p class="mt-1 text-sm text-gray-600">Ask a question to start the conversation!</p>
                 </div>
             </div>
         </div>
-        <div class="bg-[#252532] p-4 border-t border-gray-700 input-shadow">
+        <div class="bg-[#0A0A0A] p-4 border-t border-gray-800 input-shadow">
             <div class="flex items-center space-x-3">
-                <input type="text" id="userInput" placeholder="Enter your query..." class="flex-grow bg-[#3a3f47] text-gray-200 placeholder-gray-500 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none shadow-sm transition duration-150 ease-in-out" autocomplete="off">
-                <button id="sendBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center">
+                <input type="text" id="userInput" placeholder="Enter your query..." class="flex-grow bg-[#1C1C1C] text-gray-200 placeholder-gray-500 border border-gray-700 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none shadow-sm transition duration-150 ease-in-out" autocomplete="off">
+                <button id="sendBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center">
                     Send
                     <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                 </button>
@@ -69,21 +159,25 @@
     </main>
 
     <script>
+        // JavaScript for chat functionality
         const userInputEl = document.getElementById('userInput');
         const sendBtnEl = document.getElementById('sendBtn');
         const chatMessagesEl = document.getElementById('chatMessages');
         const chatHistoryEl = document.getElementById('chatHistory');
         const newChatBtnEl = document.getElementById('newChatBtn');
 
-        const backendApiUrlBase = "http://ec2-18-223-206-165.us-east-2.compute.amazonaws.com/"; // CHANGE THIS TO YOUR EC2 PUBLIC IP OR DNS
+        // IMPORTANT: Replace with your actual backend API URL
+        const backendApiUrlBase = "http://YOUR_EC2_PUBLIC_IP_OR_DNS/"; 
 
         let currentThreadId = null;
-        let displayedChats = {}; // { threadId: [{sender, text, id (for feedback), runId (for LangSmith)}, ...] }
+        let displayedChats = {}; // Stores chat messages: { threadId: [{sender, text, id, runId}, ...] }
 
+        // Generates a simple unique ID for chats and messages
         function generateUUID() {
             return 'chat-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10);
         }
 
+        // Creates the DOM element for a chat bubble
         function createMessageBubbleDOM(sender, text, messageId) {
             const messageWrapper = document.createElement('div');
             messageWrapper.classList.add('flex', 'items-end', 'w-full', 'mb-3');
@@ -93,9 +187,7 @@
 
             const bubble = document.createElement('div');
             bubble.classList.add('chat-bubble', 'max-w-[75%]', 'lg:max-w-[70%]');
-            // To render newlines correctly from backend
-            bubble.innerHTML = text.replace(/\n/g, '<br>');
-
+            bubble.innerHTML = text.replace(/\n/g, '<br>'); // Render newlines
 
             if (sender === 'user') {
                 avatar.classList.add('avatar-user');
@@ -104,30 +196,28 @@
                 messageWrapper.classList.add('justify-end');
                 messageWrapper.appendChild(bubble);
                 messageWrapper.appendChild(avatar);
-            } else { // AI
+            } else { // AI message
                 avatar.classList.add('avatar-ai');
                 avatar.textContent = 'AI';
                 bubble.classList.add('chat-bubble-ai');
                 messageWrapper.classList.add('justify-start');
 
-                const aiMessageContentDiv = document.createElement('div'); // Wrapper for bubble and feedback
+                const aiMessageContentDiv = document.createElement('div');
                 aiMessageContentDiv.appendChild(bubble);
 
-
+                // Feedback buttons for AI messages
                 const feedbackDivId = `feedback-${messageId}`;
                 const feedbackDiv = document.createElement('div');
-                feedbackDiv.classList.add('feedback-buttons', 'mt-1.5', 'ml-12', 'flex', 'space-x-2'); // Adjusted margin
+                feedbackDiv.classList.add('feedback-buttons', 'mt-1.5', 'ml-12', 'flex', 'space-x-2');
                 feedbackDiv.id = feedbackDivId;
 
                 const correctBtn = document.createElement('button');
                 correctBtn.textContent = '👍';
                 correctBtn.title = 'Correct';
-                // Get the specific runId for this AI message when creating the onclick handler
                 correctBtn.onclick = () => {
                     const msgData = displayedChats[currentThreadId]?.find(m => m.id === messageId);
                     handleFeedback(true, text, msgData?.userQuery || "Unknown query", feedbackDivId, msgData?.runId);
                 };
-
 
                 const incorrectBtn = document.createElement('button');
                 incorrectBtn.textContent = '👎';
@@ -147,39 +237,37 @@
             return messageWrapper;
         }
 
+        // Displays a message on the UI and stores it
         function displayMessageOnUI(sender, text, threadIdToUpdate, userQueryForFeedback = null, runIdForFeedback = null) {
             if (!displayedChats[threadIdToUpdate]) {
                 displayedChats[threadIdToUpdate] = [];
             }
             const messageId = `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-            const messageData = { sender, text, id: messageId, runId: null }; // Initialize runId
+            const messageData = { sender, text, id: messageId, runId: null };
 
             if (sender === 'ai') {
-                if (userQueryForFeedback) {
-                    messageData.userQuery = userQueryForFeedback;
-                }
-                if (runIdForFeedback) { // Store the run_id if provided for AI messages
-                    messageData.runId = runIdForFeedback;
-                    console.log(`Stored run_id ${runIdForFeedback} for AI message ${messageId}`);
-                }
+                if (userQueryForFeedback) messageData.userQuery = userQueryForFeedback;
+                if (runIdForFeedback) messageData.runId = runIdForFeedback;
             }
             displayedChats[threadIdToUpdate].push(messageData);
 
             if (threadIdToUpdate === currentThreadId) {
+                // Clear placeholder if it's the first message
                 if (chatMessagesEl.childElementCount === 1 && chatMessagesEl.firstElementChild.classList.contains('h-full')) {
-                    chatMessagesEl.innerHTML = ''; // Clear placeholder
+                    chatMessagesEl.innerHTML = ''; 
                 }
                 const bubbleElement = createMessageBubbleDOM(sender, text, messageId);
                 chatMessagesEl.appendChild(bubbleElement);
-                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight; // Scroll to bottom
             }
         }
 
+        // Handles sending user query to the backend
         async function handleSend() {
             const query = userInputEl.value.trim();
             if (query === "" || !currentThreadId) return;
 
-            const userQueryForThisTurn = query; // Capture query before it's cleared
+            const userQueryForThisTurn = query;
 
             displayMessageOnUI('user', query, currentThreadId);
             userInputEl.value = "";
@@ -189,12 +277,7 @@
             sendBtnEl.innerHTML = 'Processing... <svg class="animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
             try {
-                const payload = {
-                    question: query,
-                    thread_id: currentThreadId
-                };
-                console.log("Sending to backend:", payload);
-
+                const payload = { question: query, thread_id: currentThreadId };
                 const response = await fetch(`${backendApiUrlBase}/api/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -207,7 +290,6 @@
                 }
 
                 const data = await response.json();
-                // Pass userQueryForThisTurn and the received data.run_id to displayMessageOnUI
                 displayMessageOnUI('ai', data.answer, currentThreadId, userQueryForThisTurn, data.run_id);
 
             } catch (error) {
@@ -222,15 +304,16 @@
             }
         }
 
+        // Handles sending feedback to the backend
         async function handleFeedback(isCorrect, aiResponseText, userQueryText, feedbackDivId, associatedRunId) {
             const feedbackStatus = isCorrect ? "correct" : "incorrect";
             const feedbackButtonsContainer = document.getElementById(feedbackDivId);
             if (!feedbackButtonsContainer) return;
 
             const buttons = feedbackButtonsContainer.querySelectorAll('button');
-            buttons.forEach(btn => btn.disabled = true); // Disable both
+            buttons.forEach(btn => btn.disabled = true);
             const targetButton = isCorrect ? buttons[0] : buttons[1];
-            targetButton.classList.add('selected'); // Mark selected
+            targetButton.classList.add('selected');
 
             if (currentThreadId && displayedChats[currentThreadId]) {
                 const messageId = feedbackDivId.replace('feedback-', '');
@@ -239,11 +322,7 @@
             }
 
             console.log(`Sending feedback for run_id: ${associatedRunId}, status: ${feedbackStatus}`);
-            if (!associatedRunId) {
-                console.warn("No run_id associated with this message for feedback.");
-                // Decide if you still want to send feedback without run_id or show an error/message
-            }
-
+            
             try {
                 const response = await fetch(`${backendApiUrlBase}/api/log_feedback`, {
                     method: 'POST',
@@ -253,7 +332,7 @@
                         answer: aiResponseText,
                         feedback: feedbackStatus,
                         thread_id: currentThreadId,
-                        run_id: associatedRunId // Send the associated run_id
+                        run_id: associatedRunId
                     }),
                 });
                 if (!response.ok) throw new Error(`Feedback API Error ${response.status}`);
@@ -267,12 +346,12 @@
 
             } catch (error) {
                 console.error('Error submitting feedback:', error);
-                buttons.forEach(btn => btn.disabled = false); // Re-enable on error
+                buttons.forEach(btn => btn.disabled = false);
                 targetButton.classList.remove('selected');
-                // Optionally show an error message to the user here
             }
         }
 
+        // Updates the chat history panel
         function updateChatHistoryUI() {
             chatHistoryEl.innerHTML = '';
             const placeholder = chatHistoryEl.querySelector('.history-placeholder');
@@ -281,10 +360,10 @@
             const threadIds = Object.keys(displayedChats).filter(id => displayedChats[id] && displayedChats[id].length > 0);
 
             if (threadIds.length === 0) {
-                 chatHistoryEl.innerHTML = '<p class="text-gray-500 text-sm history-placeholder">No chats yet.</p>';
+                 chatHistoryEl.innerHTML = '<p class="text-gray-600 text-sm history-placeholder">No chats yet.</p>';
                  return;
             }
-            threadIds.sort((a, b) => parseInt(b.split('-')[1]) - parseInt(a.split('-')[1]));
+            threadIds.sort((a, b) => parseInt(b.split('-')[1]) - parseInt(a.split('-')[1])); // Sort by newest first
 
             threadIds.forEach(threadId => {
                 const firstUserMessage = displayedChats[threadId].find(msg => msg.sender === 'user');
@@ -302,16 +381,18 @@
             });
         }
 
+        // Renders messages for a specific chat thread
         function renderChatMessagesForThread(threadId) {
             chatMessagesEl.innerHTML = '';
             const messagesToDisplay = displayedChats[threadId] || [];
 
             if (messagesToDisplay.length === 0) {
+                // Show placeholder if no messages
                 chatMessagesEl.innerHTML = `<div class="flex justify-center items-center h-full">
                     <div class="text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" /></svg>
-                        <h2 class="mt-2 text-lg font-medium text-gray-400">R.A.G. Terminal</h2>
-                        <p class="mt-1 text-sm text-gray-500">Ask a question to start the conversation!</p>
+                        <svg class="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" /></svg>
+                        <h2 class="mt-2 text-lg font-medium text-gray-500">R.A.G. Terminal</h2>
+                        <p class="mt-1 text-sm text-gray-600">Ask a question to start the conversation!</p>
                     </div>
                 </div>`;
                 return;
@@ -320,16 +401,17 @@
             messagesToDisplay.forEach(msg => {
                 const bubbleElement = createMessageBubbleDOM(msg.sender, msg.text, msg.id);
                 chatMessagesEl.appendChild(bubbleElement);
-                if (msg.sender === 'ai' && msg.feedbackGiven) { // Re-apply feedback state if already given
+                // Re-apply feedback state if it was already given
+                if (msg.sender === 'ai' && msg.feedbackGiven) {
                     const feedbackButtonsContainer = document.getElementById(`feedback-${msg.id}`);
                     if (feedbackButtonsContainer) {
                         const buttons = feedbackButtonsContainer.querySelectorAll('button');
                         buttons.forEach(btn => btn.disabled = true);
                         const targetButton = msg.feedbackGiven === 'correct' ? buttons[0] : buttons[1];
-                        if(targetButton) targetButton.classList.add('selected'); // Check if targetButton exists
+                        if(targetButton) targetButton.classList.add('selected');
                         
                         const confirmation = feedbackButtonsContainer.querySelector('.feedback-confirmation');
-                        if (confirmation) confirmation.remove(); // Remove old one
+                        if (confirmation) confirmation.remove();
                         const newConfirmation = document.createElement('span');
                         newConfirmation.textContent = ' Thanks!';
                         newConfirmation.classList.add('text-xs', 'text-gray-400', 'ml-1', 'feedback-confirmation');
@@ -337,9 +419,10 @@
                     }
                 }
             });
-            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight; // Scroll to bottom
         }
 
+        // Sets the active item in the history panel
         function setActiveHistoryItem(threadId) {
             document.querySelectorAll('#chatHistory .history-item').forEach(item => {
                 item.classList.remove('active');
@@ -349,39 +432,38 @@
             });
         }
 
+        // Loads a specific chat thread
         function loadChat(threadId) {
-            console.log("Loading chat:", threadId);
             currentThreadId = threadId;
             renderChatMessagesForThread(threadId);
             setActiveHistoryItem(threadId);
             userInputEl.focus();
         }
 
+        // Starts a new chat session
         function startNewChat() {
             const newId = generateUUID();
-            console.log("Starting new chat:", newId);
             currentThreadId = newId;
-            displayedChats[currentThreadId] = [];
-            renderChatMessagesForThread(currentThreadId);
-            updateChatHistoryUI();
-            setActiveHistoryItem(currentThreadId);
+            displayedChats[currentThreadId] = []; // Initialize empty messages for the new chat
+            renderChatMessagesForThread(currentThreadId); // Render (will show placeholder)
+            updateChatHistoryUI(); // Update history panel
+            setActiveHistoryItem(currentThreadId); // Set new chat as active
             userInputEl.value = "";
             userInputEl.focus();
         }
 
+        // Event listeners
         sendBtnEl.addEventListener('click', handleSend);
         userInputEl.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === 'Enter' && !e.shiftKey) { // Send on Enter, allow Shift+Enter for newline
                 e.preventDefault();
                 handleSend();
             }
         });
         newChatBtnEl.addEventListener('click', startNewChat);
 
-        // Initial load
+        // Initial load: Start a new chat when the page loads
         startNewChat();
-        // updateChatHistoryUI(); // updateChatHistoryUI is called within startNewChat effectively
-
     </script>
 </body>
 </html>
