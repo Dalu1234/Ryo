@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* R.A.G. Terminal UI Styles
-          Version: Deep Black Theme with Light Blue Accent
+          Version: Responsive Deep Black Theme with Light Blue Accent
         */
         body {
             font-family: 'Inter', sans-serif;
@@ -31,14 +31,12 @@
             background: #444444; 
         }
 
-        /* User chat bubble: Light blue accent */
         .chat-bubble-user { 
-            background-color: #2563EB; /* Light Blue (Tailwind blue-600) */
+            background-color: #2563EB; 
             color: #ffffff; 
             align-self: flex-end; 
             max-width: 75%; 
         }
-        /* AI chat bubble: Dark grey for AI responses */
         .chat-bubble-ai { 
             background-color: #1A1A1A; 
             color: #e0e0e0; 
@@ -55,7 +53,6 @@
             line-height: 1.6; 
         }
 
-        /* Avatars */
         .avatar { 
             width: 32px; 
             height: 32px; 
@@ -69,7 +66,7 @@
             flex-shrink: 0; 
         }
         .avatar-user { 
-            background-color: #1D4ED8; /* Darker Blue (Tailwind blue-700) */
+            background-color: #1D4ED8; 
             color: white; 
         }
         .avatar-ai { 
@@ -77,7 +74,6 @@
             color: white; 
         }
 
-        /* Feedback buttons */
         .feedback-buttons button { 
             background-color: #2C2C2C; 
             color: #c0c0c0; 
@@ -91,12 +87,11 @@
             background-color: #3C3C3C; 
         }
         .feedback-buttons button.selected { 
-            background-color: #2563EB; /* Light Blue for selected feedback */
+            background-color: #2563EB; 
             color: white; 
             cursor: not-allowed; 
         }
 
-        /* History panel */
         .history-item { 
             padding: 10px 15px; 
             margin: 5px 0; 
@@ -121,9 +116,13 @@
         }
     </style>
 </head>
-<body class="h-screen flex overflow-hidden">
+<body class="h-screen flex flex-col md:flex-row">
 
-    <aside class="w-1/4 md:w-1/5 lg:w-1/6 bg-[#0A0A0A] p-4 flex flex-col space-y-3 border-r border-gray-800 overflow-y-auto">
+    <!-- Aside panel (History) 
+        MODIFIED: Classes for responsive behavior. Hidden on mobile by default.
+                  Limited max height on mobile when shown.
+    -->
+    <aside id="historyPanel" class="hidden md:flex flex-col w-full md:w-1/4 md:max-w-[280px] lg:max-w-[320px] bg-[#0A0A0A] p-4 space-y-3 border-b md:border-r md:border-b-0 border-gray-800 overflow-y-auto md:h-screen max-h-[50vh] md:max-h-none">
         <button id="newChatBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
             + New Chat
         </button>
@@ -137,8 +136,17 @@
         </div>
     </aside>
 
-    <main class="flex-grow flex flex-col h-screen bg-[#000000]">
-        <div id="chatMessages" class="flex-grow p-6 space-y-2 overflow-y-auto bg-[#080808] rounded-t-lg">
+    <!-- Main chat area 
+        MODIFIED: overflow-hidden to manage internal scrolling properly.
+    -->
+    <main class="flex-grow flex flex-col bg-[#000000] overflow-hidden">
+        <div class="p-3 border-b border-gray-800 md:hidden">
+            <button id="toggleHistoryBtn" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-sm">
+                View History
+            </button>
+        </div>
+
+        <div id="chatMessages" class="flex-grow p-6 space-y-2 overflow-y-auto bg-[#080808] md:rounded-t-lg">
             <div class="flex justify-center items-center h-full">
                 <div class="text-center">
                     <svg class="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" /></svg>
@@ -165,19 +173,19 @@
         const chatMessagesEl = document.getElementById('chatMessages');
         const chatHistoryEl = document.getElementById('chatHistory');
         const newChatBtnEl = document.getElementById('newChatBtn');
+        const historyPanel = document.getElementById('historyPanel'); // Get history panel
+        const toggleHistoryBtn = document.getElementById('toggleHistoryBtn'); // Get toggle button
 
         // IMPORTANT: Replace with your actual backend API URL
-        const backendApiUrlBase = "http://YOUR_EC2_PUBLIC_IP_OR_DNS/"; 
+        const backendApiUrlBase = "http://ec2-18-223-206-165.us-east-2.compute.amazonaws.com/"; 
 
         let currentThreadId = null;
-        let displayedChats = {}; // Stores chat messages: { threadId: [{sender, text, id, runId}, ...] }
+        let displayedChats = {}; 
 
-        // Generates a simple unique ID for chats and messages
         function generateUUID() {
             return 'chat-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10);
         }
 
-        // Creates the DOM element for a chat bubble
         function createMessageBubbleDOM(sender, text, messageId) {
             const messageWrapper = document.createElement('div');
             messageWrapper.classList.add('flex', 'items-end', 'w-full', 'mb-3');
@@ -187,7 +195,7 @@
 
             const bubble = document.createElement('div');
             bubble.classList.add('chat-bubble', 'max-w-[75%]', 'lg:max-w-[70%]');
-            bubble.innerHTML = text.replace(/\n/g, '<br>'); // Render newlines
+            bubble.innerHTML = text.replace(/\n/g, '<br>');
 
             if (sender === 'user') {
                 avatar.classList.add('avatar-user');
@@ -196,7 +204,7 @@
                 messageWrapper.classList.add('justify-end');
                 messageWrapper.appendChild(bubble);
                 messageWrapper.appendChild(avatar);
-            } else { // AI message
+            } else { 
                 avatar.classList.add('avatar-ai');
                 avatar.textContent = 'AI';
                 bubble.classList.add('chat-bubble-ai');
@@ -205,7 +213,6 @@
                 const aiMessageContentDiv = document.createElement('div');
                 aiMessageContentDiv.appendChild(bubble);
 
-                // Feedback buttons for AI messages
                 const feedbackDivId = `feedback-${messageId}`;
                 const feedbackDiv = document.createElement('div');
                 feedbackDiv.classList.add('feedback-buttons', 'mt-1.5', 'ml-12', 'flex', 'space-x-2');
@@ -237,7 +244,6 @@
             return messageWrapper;
         }
 
-        // Displays a message on the UI and stores it
         function displayMessageOnUI(sender, text, threadIdToUpdate, userQueryForFeedback = null, runIdForFeedback = null) {
             if (!displayedChats[threadIdToUpdate]) {
                 displayedChats[threadIdToUpdate] = [];
@@ -252,17 +258,15 @@
             displayedChats[threadIdToUpdate].push(messageData);
 
             if (threadIdToUpdate === currentThreadId) {
-                // Clear placeholder if it's the first message
                 if (chatMessagesEl.childElementCount === 1 && chatMessagesEl.firstElementChild.classList.contains('h-full')) {
                     chatMessagesEl.innerHTML = ''; 
                 }
                 const bubbleElement = createMessageBubbleDOM(sender, text, messageId);
                 chatMessagesEl.appendChild(bubbleElement);
-                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight; // Scroll to bottom
+                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight; 
             }
         }
 
-        // Handles sending user query to the backend
         async function handleSend() {
             const query = userInputEl.value.trim();
             if (query === "" || !currentThreadId) return;
@@ -304,7 +308,6 @@
             }
         }
 
-        // Handles sending feedback to the backend
         async function handleFeedback(isCorrect, aiResponseText, userQueryText, feedbackDivId, associatedRunId) {
             const feedbackStatus = isCorrect ? "correct" : "incorrect";
             const feedbackButtonsContainer = document.getElementById(feedbackDivId);
@@ -351,7 +354,6 @@
             }
         }
 
-        // Updates the chat history panel
         function updateChatHistoryUI() {
             chatHistoryEl.innerHTML = '';
             const placeholder = chatHistoryEl.querySelector('.history-placeholder');
@@ -363,7 +365,7 @@
                  chatHistoryEl.innerHTML = '<p class="text-gray-600 text-sm history-placeholder">No chats yet.</p>';
                  return;
             }
-            threadIds.sort((a, b) => parseInt(b.split('-')[1]) - parseInt(a.split('-')[1])); // Sort by newest first
+            threadIds.sort((a, b) => parseInt(b.split('-')[1]) - parseInt(a.split('-')[1])); 
 
             threadIds.forEach(threadId => {
                 const firstUserMessage = displayedChats[threadId].find(msg => msg.sender === 'user');
@@ -381,13 +383,11 @@
             });
         }
 
-        // Renders messages for a specific chat thread
         function renderChatMessagesForThread(threadId) {
             chatMessagesEl.innerHTML = '';
             const messagesToDisplay = displayedChats[threadId] || [];
 
             if (messagesToDisplay.length === 0) {
-                // Show placeholder if no messages
                 chatMessagesEl.innerHTML = `<div class="flex justify-center items-center h-full">
                     <div class="text-center">
                         <svg class="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5V16z" /></svg>
@@ -401,7 +401,6 @@
             messagesToDisplay.forEach(msg => {
                 const bubbleElement = createMessageBubbleDOM(msg.sender, msg.text, msg.id);
                 chatMessagesEl.appendChild(bubbleElement);
-                // Re-apply feedback state if it was already given
                 if (msg.sender === 'ai' && msg.feedbackGiven) {
                     const feedbackButtonsContainer = document.getElementById(`feedback-${msg.id}`);
                     if (feedbackButtonsContainer) {
@@ -419,10 +418,9 @@
                     }
                 }
             });
-            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight; // Scroll to bottom
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight; 
         }
 
-        // Sets the active item in the history panel
         function setActiveHistoryItem(threadId) {
             document.querySelectorAll('#chatHistory .history-item').forEach(item => {
                 item.classList.remove('active');
@@ -432,37 +430,58 @@
             });
         }
 
-        // Loads a specific chat thread
         function loadChat(threadId) {
             currentThreadId = threadId;
             renderChatMessagesForThread(threadId);
             setActiveHistoryItem(threadId);
             userInputEl.focus();
+            // On mobile, if history was shown, hide it after selecting a chat
+            if (window.innerWidth < 768 && historyPanel && !historyPanel.classList.contains('hidden')) {
+                historyPanel.classList.add('hidden');
+                if(toggleHistoryBtn) toggleHistoryBtn.textContent = 'View History';
+            }
         }
 
-        // Starts a new chat session
         function startNewChat() {
             const newId = generateUUID();
             currentThreadId = newId;
-            displayedChats[currentThreadId] = []; // Initialize empty messages for the new chat
-            renderChatMessagesForThread(currentThreadId); // Render (will show placeholder)
-            updateChatHistoryUI(); // Update history panel
-            setActiveHistoryItem(currentThreadId); // Set new chat as active
+            displayedChats[currentThreadId] = []; 
+            renderChatMessagesForThread(currentThreadId); 
+            updateChatHistoryUI(); 
+            setActiveHistoryItem(currentThreadId); 
             userInputEl.value = "";
             userInputEl.focus();
+            // On mobile, if history was shown, hide it when starting a new chat
+            if (window.innerWidth < 768 && historyPanel && !historyPanel.classList.contains('hidden')) {
+                historyPanel.classList.add('hidden');
+                if(toggleHistoryBtn) toggleHistoryBtn.textContent = 'View History';
+            }
         }
 
         // Event listeners
         sendBtnEl.addEventListener('click', handleSend);
         userInputEl.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { // Send on Enter, allow Shift+Enter for newline
+            if (e.key === 'Enter' && !e.shiftKey) { 
                 e.preventDefault();
                 handleSend();
             }
         });
         newChatBtnEl.addEventListener('click', startNewChat);
 
-        // Initial load: Start a new chat when the page loads
+        // Toggle history panel on mobile
+        if (toggleHistoryBtn && historyPanel) {
+            toggleHistoryBtn.addEventListener('click', () => {
+                historyPanel.classList.toggle('hidden');
+                // Update button text based on panel visibility
+                if (historyPanel.classList.contains('hidden')) {
+                    toggleHistoryBtn.textContent = 'View History';
+                } else {
+                    toggleHistoryBtn.textContent = 'Hide History';
+                }
+            });
+        }
+
+        // Initial load
         startNewChat();
     </script>
 </body>
